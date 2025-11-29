@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Image Upload Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #imagePreview {
+            max-width: 300px;
+            margin-top: 10px;
+            border: 2px solid #ddd;
+            padding: 10px;
+        }
+        #imagePreview img {
+            max-width: 100%;
+            height: auto;
+        }
+        .message {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Artisan Product Creation with Image</h1>
+    
+    <div class="form-group">
+        <label for="token">Bearer Token (Login first to get this):</label>
+        <input type="text" id="token" placeholder="Paste your JWT token here">
+    </div>
+
+    <hr>
+
+    <h2>Step 1: Upload Product Image</h2>
+    <div class="form-group">
+        <label for="imageFile">Select Image (JPG, PNG, GIF, WEBP):</label>
+        <input type="file" id="imageFile" accept=".jpg,.jpeg,.png,.gif,.webp">
+    </div>
+    <button onclick="uploadImage()">Upload Image</button>
+    
+    <div id="imagePreview"></div>
+    <div id="uploadMessage"></div>
+
+    <hr>
+
+    <h2>Step 2: Create Product with Image</h2>
+    <div class="form-group">
+        <label for="productName">Product Name:</label>
+        <input type="text" id="productName" placeholder="e.g., Handwoven Nakshi Katha">
+    </div>
+
+    <div class="form-group">
+        <label for="productPrice">Price (BDT):</label>
+        <input type="number" id="productPrice" step="0.01" placeholder="e.g., 2500">
+    </div>
+
+    <div class="form-group">
+        <label for="stockQuantity">Stock Quantity:</label>
+        <input type="number" id="stockQuantity" placeholder="e.g., 10">
+    </div>
+
+    <div class="form-group">
+        <label for="culturalMotif">Cultural Motif:</label>
+        <input type="text" id="culturalMotif" placeholder="e.g., Traditional Bengali">
+    </div>
+
+    <div class="form-group">
+        <label for="imageUrl">Image URL (auto-filled from upload):</label>
+        <input type="text" id="imageUrl" placeholder="Will be filled after image upload" readonly>
+    </div>
+
+    <button onclick="createProduct()">Create Product</button>
+    <div id="productMessage"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        
+        async function uploadImage() {
+            const token = document.getElementById('token').value;
+            const fileInput = document.getElementById('imageFile');
+            const messageDiv = document.getElementById('uploadMessage');
+            const previewDiv = document.getElementById('imagePreview');
+            
+            if (!token) {
+                messageDiv.innerHTML = '<div class="message error">Please enter your bearer token first!</div>';
+                return;
+            }
+            
+            if (!fileInput.files[0]) {
+                messageDiv.innerHTML = '<div class="message error">Please select an image file!</div>';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                messageDiv.innerHTML = '<div class="message">Uploading...</div>';
+                
+                const response = await fetch(`${API_BASE}/products/upload-image`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Upload failed');
+                }
+                
+                const data = await response.json();
+                
+                // Update image URL field
+                document.getElementById('imageUrl').value = data.image_url;
+                
+                // Show preview
+                previewDiv.innerHTML = `
+                    <h4>Preview:</h4>
+                    <img src="${API_BASE}${data.image_url}" alt="Uploaded product image">
+                    <p>URL: ${data.image_url}</p>
+                `;
+                
+                messageDiv.innerHTML = '<div class="message success">Image uploaded successfully! You can now create the product.</div>';
+                
+            } catch (error) {
+                messageDiv.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                console.error('Upload error:', error);
+            }
+        }
+        
+        async function createProduct() {
+            const token = document.getElementById('token').value;
+            const messageDiv = document.getElementById('productMessage');
+            
+            if (!token) {
+                messageDiv.innerHTML = '<div class="message error">Please enter your bearer token first!</div>';
+                return;
+            }
+            
+            const productData = {
+                name: document.getElementById('productName').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                stock_quantity: parseInt(document.getElementById('stockQuantity').value),
+                cultural_motif: document.getElementById('culturalMotif').value,
+                image_url: document.getElementById('imageUrl').value || null
+            };
+            
+            // Validation
+            if (!productData.name || !productData.price || !productData.stock_quantity) {
+                messageDiv.innerHTML = '<div class="message error">Please fill in all required fields!</div>';
+                return;
+            }
+            
+            try {
+                messageDiv.innerHTML = '<div class="message">Creating product...</div>';
+                
+                const response = await fetch(`${API_BASE}/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(productData)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Product creation failed');
+                }
+                
+                const data = await response.json();
+                
+                messageDiv.innerHTML = `
+                    <div class="message success">
+                        <h4>Product Created Successfully!</h4>
+                        <p><strong>Product ID:</strong> ${data.product_id}</p>
+                        <p><strong>Name:</strong> ${data.name}</p>
+                        <p><strong>Price:</strong> ৳${data.price}</p>
+                        <p><strong>Image URL:</strong> ${data.image_url || 'No image'}</p>
+                    </div>
+                `;
+                
+                // Reset form
+                document.getElementById('productName').value = '';
+                document.getElementById('productPrice').value = '';
+                document.getElementById('stockQuantity').value = '';
+                document.getElementById('culturalMotif').value = '';
+                document.getElementById('imageUrl').value = '';
+                document.getElementById('imagePreview').innerHTML = '';
+                
+            } catch (error) {
+                messageDiv.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                console.error('Product creation error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

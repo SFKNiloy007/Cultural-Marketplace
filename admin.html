@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Artisan E-Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 shadow-lg">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold">Artisan E-Marketplace</h1>
+                <p class="text-sm opacity-90">Administrator Dashboard</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span id="adminEmail" class="text-sm"></span>
+                <button onclick="logout()" class="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <p class="text-gray-600 text-sm">Total Artisans</p>
+                <p class="text-3xl font-bold text-purple-600" id="totalArtisans">-</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <p class="text-gray-600 text-sm">Pending Verification</p>
+                <p class="text-3xl font-bold text-orange-600" id="pendingArtisans">-</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <p class="text-gray-600 text-sm">Total Transactions</p>
+                <p class="text-3xl font-bold text-green-600" id="totalTransactions">-</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <p class="text-gray-600 text-sm">Active Orders</p>
+                <p class="text-3xl font-bold text-blue-600" id="activeOrders">-</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Sidebar Navigation -->
+            <div class="bg-white p-6 rounded-xl shadow-md h-fit">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">Admin Functions</h3>
+                <ul class="space-y-2">
+                    <li>
+                        <button onclick="showSection('verify')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-purple-50 hover:text-purple-600 font-medium transition">
+                            ✓ Verification
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="showSection('suspend')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-purple-50 hover:text-purple-600 font-medium transition">
+                            🚫 Suspend Artisans
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="showSection('audit')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-purple-50 hover:text-purple-600 font-medium transition">
+                            📊 Audit Logs
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="showSection('payout')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-purple-50 hover:text-purple-600 font-medium transition">
+                            💰 Payout Ledger
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="showSection('financial')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-purple-50 hover:text-purple-600 font-medium transition">
+                            💵 Seller Financials
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="lg:col-span-2">
+                <!-- Verify Artisans Section -->
+                <div id="verifySection" class="bg-white p-6 rounded-xl shadow-md">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">Pending User Verification</h3>
+                    <p class="text-sm text-gray-600 mb-4">Approve or reject pending buyers and artisans</p>
+                    <div id="pendingArtisansList" class="space-y-4">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- Suspend Artisans Section -->
+                <div id="suspendSection" class="bg-white p-6 rounded-xl shadow-md hidden">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">Manage Active Artisans</h3>
+                    <div id="activeArtisansList" class="space-y-4">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- Audit Logs Section -->
+                <div id="auditSection" class="bg-white p-6 rounded-xl shadow-md hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Transaction Audit Logs</h3>
+                        <button onclick="generateAuditReport()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                            Generate Report
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Transaction ID</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Order ID</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Amount</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Method</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditLogsList" class="divide-y">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Payout Ledger Section -->
+                <div id="payoutSection" class="bg-white p-6 rounded-xl shadow-md hidden">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">Artisan Payout Ledger</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Artisan</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Total Sales</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Commission (15%)</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Net Payout</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payoutLedgerList" class="divide-y">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Seller Financials Section -->
+                <div id="financialSection" class="bg-white p-6 rounded-xl shadow-md hidden">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">Seller Financial Information</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Email</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Products</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Orders</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Revenue</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Commission</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Net Earnings</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sellerFinancialList" class="divide-y">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin.includes('replit') ? window.location.origin : 'http://127.0.0.1:8000';
+        let currentSection = 'verify';
+
+        // Check authentication
+        const token = localStorage.getItem('access_token');
+        const userRole = localStorage.getItem('user_role');
+        const userEmail = localStorage.getItem('user_email');
+
+        if (!token || userRole !== 'admin') {
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('adminEmail').textContent = userEmail;
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        function showSection(section) {
+            // Hide all sections
+            document.getElementById('verifySection').classList.add('hidden');
+            document.getElementById('suspendSection').classList.add('hidden');
+            document.getElementById('auditSection').classList.add('hidden');
+            document.getElementById('payoutSection').classList.add('hidden');
+            document.getElementById('financialSection').classList.add('hidden');
+
+            // Show selected section
+            document.getElementById(section + 'Section').classList.remove('hidden');
+            currentSection = section;
+
+            // Load data for the section
+            loadSectionData(section);
+        }
+
+        async function loadSectionData(section) {
+            try {
+                switch(section) {
+                    case 'verify':
+                        await loadPendingArtisans();
+                        break;
+                    case 'suspend':
+                        await loadActiveArtisans();
+                        break;
+                    case 'audit':
+                        await loadAuditLogs();
+                        break;
+                    case 'payout':
+                        await loadPayoutLedger();
+                        break;
+                    case 'financial':
+                        await loadSellerFinancials();
+                        break;
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        async function loadPendingArtisans() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/users/pending`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const users = await response.json();
+                    const container = document.getElementById('pendingArtisansList');
+                    
+                    if (users.length === 0) {
+                        container.innerHTML = '<p class="text-gray-500 text-center py-4">No pending verifications</p>';
+                        return;
+                    }
+
+                    container.innerHTML = users.map(user => `
+                        <div class="border border-gray-200 rounded-lg p-4 flex justify-between items-center">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <p class="font-semibold text-gray-800">${user.email}</p>
+                                    <span class="px-2 py-1 text-xs rounded ${user.user_type === 'Artisan' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">${user.user_type}</span>
+                                </div>
+                                <p class="text-sm text-gray-600">Details: ${user.details}</p>
+                                <p class="text-xs text-gray-500">Registered: ${new Date(user.registration_date).toLocaleDateString()}</p>
+                            </div>
+                            <div class="space-x-2">
+                                <button onclick="verifyUser(${user.user_id})" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                                    Approve
+                                </button>
+                                <button onclick="rejectUser(${user.user_id})" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                                    Reject
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading pending users:', error);
+            }
+        }
+
+        async function loadActiveArtisans() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/artisans/active`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const artisans = await response.json();
+                    const container = document.getElementById('activeArtisansList');
+                    
+                    if (artisans.length === 0) {
+                        container.innerHTML = '<p class="text-gray-500 text-center py-4">No active artisans</p>';
+                        return;
+                    }
+
+                    container.innerHTML = artisans.map(artisan => `
+                        <div class="border border-gray-200 rounded-lg p-4 flex justify-between items-center">
+                            <div>
+                                <p class="font-semibold text-gray-800">${artisan.business_name}</p>
+                                <p class="text-sm text-gray-600">Contact: ${artisan.contact_phone}</p>
+                                <p class="text-sm text-gray-600">Status: <span class="text-green-600">Active</span></p>
+                            </div>
+                            <button onclick="suspendArtisan(${artisan.artisan_id})" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                                Suspend
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading active artisans:', error);
+            }
+        }
+
+        async function loadAuditLogs() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/audit-logs`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const logs = await response.json();
+                    const tbody = document.getElementById('auditLogsList');
+                    
+                    if (logs.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No transactions found</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = logs.map(log => `
+                        <tr>
+                            <td class="px-4 py-3 text-sm">${log.transaction_id}</td>
+                            <td class="px-4 py-3 text-sm">#${log.order_id}</td>
+                            <td class="px-4 py-3 text-sm font-semibold">Tk ${log.amount.toLocaleString()}</td>
+                            <td class="px-4 py-3 text-sm">${log.payment_method}</td>
+                            <td class="px-4 py-3 text-sm">${new Date(log.transaction_date).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading audit logs:', error);
+            }
+        }
+
+        async function loadPayoutLedger() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/payout-ledger`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const payouts = await response.json();
+                    const tbody = document.getElementById('payoutLedgerList');
+                    
+                    if (payouts.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No payout data available</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = payouts.map(payout => `
+                        <tr>
+                            <td class="px-4 py-3 text-sm font-semibold">${payout.artisan_name}</td>
+                            <td class="px-4 py-3 text-sm">Tk ${payout.total_sales.toLocaleString()}</td>
+                            <td class="px-4 py-3 text-sm text-red-600">-Tk ${payout.commission.toLocaleString()}</td>
+                            <td class="px-4 py-3 text-sm font-bold text-green-600">Tk ${payout.net_payout.toLocaleString()}</td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-1 text-xs rounded ${payout.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
+                                    ${payout.status}
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading payout ledger:', error);
+            }
+        }
+
+        async function verifyUser(userId) {
+            if (!confirm('Approve this user?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/user/${userId}/verify`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    alert('User approved successfully!');
+                    loadPendingArtisans();
+                    loadStats();
+                } else {
+                    alert('Error approving user');
+                }
+            } catch (error) {
+                alert('Connection error');
+            }
+        }
+
+        async function rejectUser(userId) {
+            if (!confirm('Reject this user application?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/user/${userId}/reject`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    alert('User rejected');
+                    loadPendingArtisans();
+                    loadStats();
+                }
+            } catch (error) {
+                alert('Connection error');
+            }
+        }
+
+        // Legacy functions for backward compatibility
+        async function verifyArtisan(artisanId) {
+            return verifyUser(artisanId);
+        }
+
+        async function rejectArtisan(artisanId) {
+            return rejectUser(artisanId);
+        }
+
+        async function suspendArtisan(artisanId) {
+            if (!confirm('Suspend this artisan? Their listings will be hidden.')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/artisan/${artisanId}/suspend`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    alert('Artisan suspended');
+                    loadActiveArtisans();
+                    loadStats();
+                }
+            } catch (error) {
+                alert('Connection error');
+            }
+        }
+
+        function generateAuditReport() {
+            alert('Generating CSV report... This will download transaction audit logs.');
+            // In production, this would trigger a CSV download
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalArtisans').textContent = stats.total_artisans;
+                    document.getElementById('pendingArtisans').textContent = stats.pending_artisans;
+                    document.getElementById('totalTransactions').textContent = stats.total_transactions;
+                    document.getElementById('activeOrders').textContent = stats.active_orders;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadSellerFinancials() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/all-sellers-financial`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const sellers = await response.json();
+                    const container = document.getElementById('sellerFinancialList');
+                    
+                    if (sellers.length === 0) {
+                        container.innerHTML = '<tr><td colspan="7" class="text-gray-500 text-center py-4">No sellers found</td></tr>';
+                        return;
+                    }
+                    
+                    container.innerHTML = sellers.map(seller => `
+                        <tr>
+                            <td class="px-4 py-3 text-sm">${seller.email}</td>
+                            <td class="px-4 py-3 text-sm">${seller.total_products}</td>
+                            <td class="px-4 py-3 text-sm">${seller.total_orders}</td>
+                            <td class="px-4 py-3 text-sm font-semibold">৳${seller.total_revenue.toFixed(2)}</td>
+                            <td class="px-4 py-3 text-sm text-red-600">৳${seller.marketplace_commission.toFixed(2)}</td>
+                            <td class="px-4 py-3 text-sm text-green-600 font-semibold">৳${seller.net_earnings.toFixed(2)}</td>
+                            <td class="px-4 py-3 text-sm">
+                                <button onclick="viewSellerDetails(${seller.artisan_id})" 
+                                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs">
+                                    View Details
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    alert('Failed to load seller financials');
+                }
+            } catch (error) {
+                console.error('Error loading seller financials:', error);
+                alert('Connection error');
+            }
+        }
+
+        async function viewSellerDetails(artisanId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/seller-financial/${artisanId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Create modal with detailed information
+                    const modalHTML = `
+                        <div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onclick="closeDetailsModal()">
+                            <div class="bg-white rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h2 class="text-2xl font-bold text-gray-800">Seller Financial Details</h2>
+                                    <button onclick="closeDetailsModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                    <div class="bg-purple-50 p-4 rounded-lg">
+                                        <p class="text-sm text-gray-600">Email</p>
+                                        <p class="font-bold text-lg">${data.email}</p>
+                                    </div>
+                                    <div class="bg-purple-50 p-4 rounded-lg">
+                                        <p class="text-sm text-gray-600">Registration Date</p>
+                                        <p class="font-bold text-lg">${data.registration_date ? new Date(data.registration_date).toLocaleDateString() : 'N/A'}</p>
+                                    </div>
+                                    <div class="bg-green-50 p-4 rounded-lg">
+                                        <p class="text-sm text-gray-600">Total Revenue</p>
+                                        <p class="font-bold text-xl text-green-600">৳${data.financial_summary.total_revenue.toFixed(2)}</p>
+                                    </div>
+                                    <div class="bg-blue-50 p-4 rounded-lg">
+                                        <p class="text-sm text-gray-600">Net Earnings</p>
+                                        <p class="font-bold text-xl text-blue-600">৳${data.financial_summary.net_earnings.toFixed(2)}</p>
+                                    </div>
+                                    <div class="bg-yellow-50 p-4 rounded-lg">
+                                        <p class="text-sm text-gray-600">Products</p>
+                                        <p class="font-bold text-lg">${data.financial_summary.total_products}</p>
+                                    </div>
+                                    <div class="bg-indigo-50 p-4 rounded-lg">
+                                        <p class="text-sm text-gray-600">Completed Orders</p>
+                                        <p class="font-bold text-lg">${data.financial_summary.completed_orders} / ${data.financial_summary.total_orders}</p>
+                                    </div>
+                                </div>
+                                
+                                <h3 class="text-lg font-bold mb-3">Recent Transactions</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm">
+                                        <thead class="bg-gray-100">
+                                            <tr>
+                                                <th class="px-3 py-2 text-left">Date</th>
+                                                <th class="px-3 py-2 text-left">Product</th>
+                                                <th class="px-3 py-2 text-left">Qty</th>
+                                                <th class="px-3 py-2 text-left">Amount</th>
+                                                <th class="px-3 py-2 text-left">Commission</th>
+                                                <th class="px-3 py-2 text-left">Net</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${data.recent_transactions.map(tx => `
+                                                <tr class="border-b">
+                                                    <td class="px-3 py-2">${new Date(tx.date).toLocaleDateString()}</td>
+                                                    <td class="px-3 py-2">${tx.product_name}</td>
+                                                    <td class="px-3 py-2">${tx.quantity}</td>
+                                                    <td class="px-3 py-2">৳${tx.amount.toFixed(2)}</td>
+                                                    <td class="px-3 py-2 text-red-600">৳${tx.commission.toFixed(2)}</td>
+                                                    <td class="px-3 py-2 text-green-600 font-semibold">৳${tx.net.toFixed(2)}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.insertAdjacentHTML('beforeend', modalHTML);
+                }
+            } catch (error) {
+                console.error('Error loading seller details:', error);
+                alert('Failed to load details');
+            }
+        }
+
+        function closeDetailsModal() {
+            const modal = document.getElementById('detailsModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Initial load
+        loadStats();
+        loadPendingArtisans();
+    </script>
+</body>
+</html>

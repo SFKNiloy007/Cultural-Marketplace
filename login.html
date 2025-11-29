@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artisan E-Marketplace - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Background Image Slideshow */
+        .background-slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+        
+        .background-slideshow img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            animation: slideshow 24s infinite;
+        }
+        
+        .background-slideshow img:nth-child(1) { animation-delay: 0s; }
+        .background-slideshow img:nth-child(2) { animation-delay: 6s; }
+        .background-slideshow img:nth-child(3) { animation-delay: 12s; }
+        .background-slideshow img:nth-child(4) { animation-delay: 18s; }
+        
+        @keyframes slideshow {
+            0% { opacity: 0; transform: scale(1); }
+            8% { opacity: 1; }
+            25% { opacity: 1; }
+            33% { opacity: 0; transform: scale(1.1); }
+            100% { opacity: 0; }
+        }
+        
+        /* Dark overlay for better readability */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            z-index: -1;
+        }
+        
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        
+        .role-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .role-card.selected {
+            border: 3px solid #38a169;
+            background: #f0fff4;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Image Slideshow -->
+    <div class="background-slideshow">
+        <img src="images/artisan1.jpg" alt="Artisan weaving" onerror="this.src='https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=1920&q=80'">
+        <img src="images/artisan2.jpg" alt="Traditional crafts" onerror="this.src='https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=1920&q=80'">
+        <img src="images/artisan3.jpg" alt="Handmade pottery" onerror="this.src='https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=1920&q=80'">
+        <img src="images/artisan4.jpg" alt="Artisan products" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1920&q=80'">
+    </div>
+    
+    <!-- Dark overlay -->
+    <div class="overlay"></div>
+    
+    <!-- Content -->
+    <div class="content-wrapper">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Artisan E-Marketplace</h1>
+            <p class="text-gray-600">Connecting Local Artisans with Global Buyers</p>
+        </div>
+
+        <!-- Role Selection Section -->
+        <div id="roleSelection" class="space-y-6">
+            <h2 class="text-2xl font-semibold text-center text-gray-700 mb-6">Select Your Role</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Buyer Card -->
+                <div class="role-card bg-white border-2 border-gray-200 rounded-xl p-6 text-center" data-role="buyer">
+                    <div class="text-5xl mb-4">🛍️</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Buyer</h3>
+                    <p class="text-gray-600 text-sm">Browse products, place orders, and track deliveries</p>
+                </div>
+
+                <!-- Artisan Card -->
+                <div class="role-card bg-white border-2 border-gray-200 rounded-xl p-6 text-center" data-role="artisan">
+                    <div class="text-5xl mb-4">🎨</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Artisan</h3>
+                    <p class="text-gray-600 text-sm">List your products and manage your shop</p>
+                </div>
+
+                <!-- Admin Card -->
+                <div class="role-card bg-white border-2 border-gray-200 rounded-xl p-6 text-center" data-role="admin">
+                    <div class="text-5xl mb-4">⚙️</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Admin</h3>
+                    <p class="text-gray-600 text-sm">Login only - manage platform, verify artisans, and monitor transactions</p>
+                </div>
+            </div>
+
+            <button id="continueBtn" class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 rounded-xl shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                Continue to Login
+            </button>
+        </div>
+
+        <!-- Login Form (Hidden Initially) -->
+        <div id="loginForm" class="hidden space-y-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-semibold text-gray-700">
+                    <span id="formHeadline">Login as</span> <span id="selectedRoleText" class="text-green-600"></span>
+                </h2>
+                <button id="backBtn" class="text-gray-600 hover:text-gray-800 font-medium">← Back</button>
+            </div>
+
+            <form id="authForm" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none"
+                        placeholder="Enter your email"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none"
+                        placeholder="Enter your password"
+                        required
+                    />
+                </div>
+
+                <!-- Additional fields for registration only -->
+                <div id="registrationFields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">National ID (NID)</label>
+                        <input 
+                            type="text" 
+                            id="nid" 
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none"
+                            placeholder="Enter your National ID"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Phone Number</label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none"
+                            placeholder="Enter your phone number"
+                        />
+                    </div>
+                </div>
+
+                <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"></div>
+
+                <button 
+                    type="submit" 
+                    class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 rounded-xl shadow-lg transition"
+                >
+                    Login
+                </button>
+            </form>
+
+            <p class="text-center text-gray-600 text-sm mt-4">
+                Don't have an account? <a href="#" id="registerLink" class="text-green-600 hover:text-green-700 font-medium">Register here</a>
+            </p>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin.includes('replit') ? window.location.origin : 'http://127.0.0.1:8000';
+        let selectedRole = null;
+        let isRegistrationMode = false;
+
+        // Role Selection Logic
+        const roleCards = document.querySelectorAll('.role-card');
+        const continueBtn = document.getElementById('continueBtn');
+        const roleSelection = document.getElementById('roleSelection');
+        const loginForm = document.getElementById('loginForm');
+        const selectedRoleText = document.getElementById('selectedRoleText');
+        const backBtn = document.getElementById('backBtn');
+        const authForm = document.getElementById('authForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const adminCard = document.querySelector('[data-role="admin"]');
+
+        roleCards.forEach(card => {
+            card.addEventListener('click', () => {
+                roleCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedRole = card.dataset.role;
+                continueBtn.disabled = false;
+            });
+        });
+
+        continueBtn.addEventListener('click', () => {
+            if (selectedRole) {
+                roleSelection.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                selectedRoleText.textContent = selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1);
+                
+                // Update form based on mode
+                if (isRegistrationMode) {
+                    // In registration mode
+                    document.getElementById('formHeadline').textContent = 'Register as';
+                    document.getElementById('registrationFields').classList.remove('hidden');
+                    document.getElementById('registerLink').textContent = 'Create Account';
+                    authForm.querySelector('button[type="submit"]').textContent = 'Register';
+                    // Make NID and phone required for registration
+                    document.getElementById('nid').required = true;
+                    document.getElementById('phone').required = true;
+                } else {
+                    // In login mode
+                    document.getElementById('formHeadline').textContent = 'Login as';
+                    document.getElementById('registrationFields').classList.add('hidden');
+                    authForm.querySelector('button[type="submit"]').textContent = 'Login';
+                    // Remove required from NID and phone
+                    document.getElementById('nid').required = false;
+                    document.getElementById('phone').required = false;
+                    // Hide registration link for admin
+                    const registerParagraph = document.getElementById('registerLink').parentElement;
+                    if (selectedRole === 'admin') {
+                        registerParagraph.style.display = 'none';
+                    } else {
+                        registerParagraph.style.display = 'block';
+                    }
+                }
+            }
+        });
+
+        backBtn.addEventListener('click', () => {
+            loginForm.classList.add('hidden');
+            roleSelection.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            // Reset registration mode
+            isRegistrationMode = false;
+            adminCard.style.display = '';
+            document.getElementById('formHeadline').textContent = 'Login as';
+            document.getElementById('registrationFields').classList.add('hidden');
+            document.getElementById('registerLink').textContent = 'Register here';
+            continueBtn.textContent = 'Continue to Login';
+            authForm.querySelector('button[type="submit"]').textContent = 'Login';
+            // Show registration link again
+            document.getElementById('registerLink').parentElement.style.display = 'block';
+            // Clear registration fields
+            document.getElementById('nid').value = '';
+            document.getElementById('phone').value = '';
+        });
+
+        // Registration Link Handler
+        document.getElementById('registerLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            errorMessage.classList.add('hidden');
+            
+            // If not in registration mode yet, switch to it and go back to role selection
+            if (!isRegistrationMode) {
+                isRegistrationMode = true;
+                adminCard.style.display = 'none';
+                document.getElementById('registerLink').textContent = 'Create Account';
+                continueBtn.textContent = 'Continue to Register';
+                // Go back to role selection
+                loginForm.classList.add('hidden');
+                roleSelection.classList.remove('hidden');
+                // If admin was selected, deselect it
+                if (selectedRole === 'admin') {
+                    roleCards.forEach(c => c.classList.remove('selected'));
+                    selectedRole = null;
+                    continueBtn.disabled = true;
+                }
+                return;
+            }
+            
+            // Already in registration mode - this shouldn't happen as the link behavior changed
+            // The registration is now handled by form submit
+        });
+
+        // Login/Register Form Submission
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMessage.classList.add('hidden');
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (isRegistrationMode) {
+                // Handle Registration
+                if (!selectedRole || selectedRole === 'admin') {
+                    errorMessage.textContent = 'Please select Buyer or Artisan role for registration.';
+                    errorMessage.classList.remove('hidden');
+                    return;
+                }
+
+                const nid = document.getElementById('nid').value;
+                const phone = document.getElementById('phone').value;
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: email,
+                            password: password,
+                            role: selectedRole,
+                            nid: nid,
+                            phone: phone
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Show verification pending message
+                        alert(`${data.message}\n\nYour registration details have been submitted. Please wait for admin verification before you can login.`);
+                        // Reset to login mode
+                        document.getElementById('email').value = '';
+                        document.getElementById('password').value = '';
+                        document.getElementById('nid').value = '';
+                        document.getElementById('phone').value = '';
+                        isRegistrationMode = false;
+                        adminCard.style.display = '';
+                        document.getElementById('formHeadline').textContent = 'Login as';
+                        document.getElementById('registrationFields').classList.add('hidden');
+                        document.getElementById('registerLink').textContent = 'Register here';
+                        continueBtn.textContent = 'Continue to Login';
+                        authForm.querySelector('button[type="submit"]').textContent = 'Login';
+                        // Go back to role selection
+                        loginForm.classList.add('hidden');
+                        roleSelection.classList.remove('hidden');
+                        roleCards.forEach(c => c.classList.remove('selected'));
+                        selectedRole = null;
+                        continueBtn.disabled = true;
+                    } else {
+                        const error = await response.json();
+                        errorMessage.textContent = error.detail || 'Registration failed.';
+                        errorMessage.classList.remove('hidden');
+                    }
+                } catch (error) {
+                    errorMessage.textContent = 'Connection error. Please ensure the server is running.';
+                    errorMessage.classList.remove('hidden');
+                }
+            } else {
+                // Handle Login
+                try {
+                    // Create form data for OAuth2 authentication
+                    const formData = new FormData();
+                    formData.append('username', email);
+                    formData.append('password', password);
+
+                    const response = await fetch(`${API_BASE_URL}/token`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Fetch the actual user role from the server
+                        const userResponse = await fetch(`${API_BASE_URL}/users/me`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${data.access_token}`
+                            }
+                        });
+
+                        if (userResponse.ok) {
+                            const userData = await userResponse.json();
+                            const actualRole = userData.role;
+
+                            // Store token and actual role in localStorage
+                            localStorage.setItem('access_token', data.access_token);
+                            localStorage.setItem('user_role', actualRole);
+                            localStorage.setItem('user_email', email);
+
+                            // Redirect to appropriate dashboard based on actual role
+                            switch(actualRole) {
+                                case 'buyer':
+                                    window.location.href = 'buyer.html';
+                                    break;
+                                case 'artisan':
+                                    window.location.href = 'artisan.html';
+                                    break;
+                                case 'admin':
+                                    window.location.href = 'admin.html';
+                                    break;
+                                default:
+                                    errorMessage.textContent = 'Unknown role. Please contact support.';
+                                    errorMessage.classList.remove('hidden');
+                            }
+                        } else {
+                            errorMessage.textContent = 'Failed to fetch user information.';
+                            errorMessage.classList.remove('hidden');
+                        }
+                    } else {
+                        const error = await response.json();
+                        errorMessage.textContent = error.detail || 'Invalid credentials. Please try again.';
+                        errorMessage.classList.remove('hidden');
+                    }
+                } catch (error) {
+                    errorMessage.textContent = 'Connection error. Please ensure the server is running.';
+                    errorMessage.classList.remove('hidden');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
