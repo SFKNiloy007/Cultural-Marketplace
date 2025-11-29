@@ -6,3 +6,4 @@ python-jose[cryptography]
 python-multipart
 bcrypt
 python-dotenv
+PyJWT
