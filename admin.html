@@ -175,7 +175,9 @@
     </div>
 
     <script>
-        const API_BASE_URL = window.location.origin.includes('replit') ? window.location.origin : 'http://127.0.0.1:8000';
+        const API_BASE_URL = (
+            window.location.host.includes('onrender.com')
+        ) ? window.location.origin : 'http://127.0.0.1:8000';
         let currentSection = 'verify';
 
         // Check authentication
