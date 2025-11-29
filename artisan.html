@@ -294,6 +294,7 @@
 
         async function loadMyProducts() {
             try {
+                const API_BASE_URL = 'https://cultural-marketplace.onrender.com';
                 const response = await fetch(`${API_BASE_URL}/artisan/products`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
