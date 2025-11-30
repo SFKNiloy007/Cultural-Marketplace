@@ -238,6 +238,7 @@ async def initialize_database(db: Session = Depends(get_db)):
         # Read and execute migrations
         results.append("3. Running migrations...")
         migration_files = [
+            "add_orderitem_and_shipment.sql",
             "add_product_images.sql",
             "add_product_description.sql"
         ]
@@ -1088,6 +1089,23 @@ async def buyer_purchase(
     except HTTPException:
         db.rollback()
         raise
+    except DBAPIError as db_error:
+        db.rollback()
+        from psycopg2.errors import ForeignKeyViolation as PGFKV
+        msg = str(db_error.orig) if getattr(
+            db_error, 'orig', None) else str(db_error)
+        if isinstance(getattr(db_error, 'orig', None), PGFKV) or 'foreign key' in msg.lower():
+            raise HTTPException(
+                status_code=400, detail="Purchase integrity error. Your account may not be a buyer or product/order references are invalid.")
+        if 'relation' in msg.lower() and 'orderitem' in msg.lower():
+            raise HTTPException(
+                status_code=500, detail="Server missing OrderItem table. Admin must run DB init/migrations.")
+        if 'relation' in msg.lower() and 'shipment' in msg.lower():
+            raise HTTPException(
+                status_code=500, detail="Server missing Shipment table. Admin must run DB init/migrations.")
+        print(f"Purchase DB error: {msg}")
+        raise HTTPException(
+            status_code=500, detail="Purchase failed due to database error")
     except Exception as e:
         db.rollback()
         print(f"Purchase error: {e}")
