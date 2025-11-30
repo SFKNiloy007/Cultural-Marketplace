@@ -13,59 +13,59 @@
 <body class="min-h-screen">
     <!-- Header -->
     <div class="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-4 shadow-lg">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
             <div>
-                <h1 class="text-2xl font-bold">Artisan E-Marketplace</h1>
-                <p class="text-sm opacity-90">Artisan Dashboard</p>
+                <h1 class="text-xl sm:text-2xl font-bold">Artisan E-Marketplace</h1>
+                <p class="text-xs sm:text-sm opacity-90">Artisan Dashboard</p>
             </div>
-            <div class="flex items-center space-x-4">
+            <div class="flex flex-col sm:flex-row items-center gap-3 sm:space-x-4">
                 <div class="bg-white bg-opacity-20 px-4 py-2 rounded-lg">
                     <p class="text-xs">Digital Wallet</p>
-                    <p class="text-lg font-bold" id="walletBalance">Tk 0</p>
+                    <p class="text-base sm:text-lg font-bold" id="walletBalance">Tk 0</p>
                 </div>
-                <span id="artisanEmail" class="text-sm"></span>
-                <button onclick="logout()" class="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
+                <span id="artisanEmail" class="text-xs sm:text-sm truncate max-w-[150px] sm:max-w-none"></span>
+                <button onclick="logout()" class="bg-white text-green-600 px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-100 transition">
                     Logout
                 </button>
             </div>
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto p-6">
+    <div class="max-w-7xl mx-auto p-4 sm:p-6">
         <!-- Stats Overview -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <p class="text-gray-600 text-sm">Total Products</p>
-                <p class="text-3xl font-bold text-green-600" id="totalProducts">0</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6 mb-6">
+            <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+                <p class="text-gray-600 text-xs sm:text-sm">Total Products</p>
+                <p class="text-2xl sm:text-3xl font-bold text-green-600" id="totalProducts">0</p>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <p class="text-gray-600 text-sm">Total Sales</p>
-                <p class="text-3xl font-bold text-blue-600" id="totalSales">Tk 0</p>
+            <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+                <p class="text-gray-600 text-xs sm:text-sm">Total Sales</p>
+                <p class="text-2xl sm:text-3xl font-bold text-blue-600" id="totalSales">Tk 0</p>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <p class="text-gray-600 text-sm">Awaiting Dispatch</p>
-                <p class="text-3xl font-bold text-orange-600" id="awaitingDispatch">0</p>
+            <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+                <p class="text-gray-600 text-xs sm:text-sm">Awaiting Dispatch</p>
+                <p class="text-2xl sm:text-3xl font-bold text-orange-600" id="awaitingDispatch">0</p>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <p class="text-gray-600 text-sm">In Transit</p>
-                <p class="text-3xl font-bold text-blue-600" id="inTransit">0</p>
+            <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+                <p class="text-gray-600 text-xs sm:text-sm">In Transit</p>
+                <p class="text-2xl sm:text-3xl font-bold text-blue-600" id="inTransit">0</p>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <p class="text-gray-600 text-sm">Completed Orders</p>
-                <p class="text-3xl font-bold text-purple-600" id="completedOrders">0</p>
+            <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md col-span-2 md:col-span-1">
+                <p class="text-gray-600 text-xs sm:text-sm">Completed Orders</p>
+                <p class="text-2xl sm:text-3xl font-bold text-purple-600" id="completedOrders">0</p>
             </div>
         </div>
 
         <!-- Recent Sales Notifications -->
-        <div id="recentSalesSection" class="bg-white rounded-xl shadow-md mb-6 p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-gray-800">🔔 Recent Sales & Payouts</h3>
+        <div id="recentSalesSection" class="bg-white rounded-xl shadow-md mb-6 p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                <h3 class="text-base sm:text-lg font-bold text-gray-800">🔔 Recent Sales & Payouts</h3>
                 <button onclick="loadRecentSales()" class="text-green-600 hover:text-green-700 text-sm font-medium">
                     Refresh
                 </button>
             </div>
             <div id="recentSalesList" class="space-y-3">
-                <p class="text-gray-500 text-center py-4">Loading recent sales...</p>
+                <p class="text-gray-500 text-center py-4 text-sm">Loading recent sales...</p>
             </div>
         </div>
 
@@ -153,55 +153,57 @@
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Digital Wallet & Payment History</h2>
             
             <!-- Wallet Summary -->
-            <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-8 rounded-xl shadow-lg mb-6">
-                <p class="text-sm opacity-90 mb-2">Available Balance</p>
-                <p class="text-4xl font-bold mb-4" id="walletBalanceLarge">Tk 0</p>
-                <div class="grid grid-cols-3 gap-4 text-center">
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-6 sm:p-8 rounded-xl shadow-lg mb-6">
+                <p class="text-xs sm:text-sm opacity-90 mb-2">Available Balance</p>
+                <p class="text-3xl sm:text-4xl font-bold mb-4" id="walletBalanceLarge">Tk 0</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center">
                     <div>
                         <p class="text-xs opacity-75">Total Earned</p>
-                        <p class="text-lg font-semibold" id="totalEarned">Tk 0</p>
+                        <p class="text-base sm:text-lg font-semibold" id="totalEarned">Tk 0</p>
                     </div>
                     <div>
                         <p class="text-xs opacity-75">Commission Paid</p>
-                        <p class="text-lg font-semibold" id="commissionPaid">Tk 0</p>
+                        <p class="text-base sm:text-lg font-semibold" id="commissionPaid">Tk 0</p>
                     </div>
                     <div>
                         <p class="text-xs opacity-75">Pending Payout</p>
-                        <p class="text-lg font-semibold" id="pendingPayout">Tk 0</p>
+                        <p class="text-base sm:text-lg font-semibold" id="pendingPayout">Tk 0</p>
                     </div>
                 </div>
-                <button onclick="requestPayout()" class="mt-4 bg-white text-green-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
+                <button onclick="requestPayout()" class="mt-4 bg-white text-green-600 px-4 sm:px-6 py-2 rounded-lg text-sm font-semibold hover:bg-gray-100 transition w-full sm:w-auto">
                     Request Payout
                 </button>
             </div>
 
             <!-- Transaction History -->
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <h3 class="text-xl font-bold mb-4 text-gray-800">Payment Transactions</h3>
-                <table class="w-full">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Transaction ID</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Order ID</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Product</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Amount</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Commission</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Net</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionsList" class="divide-y">
-                        <!-- Dynamic content -->
-                    </tbody>
-                </table>
+            <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+                <h3 class="text-lg sm:text-xl font-bold mb-4 text-gray-800">Payment Transactions</h3>
+                <div class="overflow-x-auto -mx-4 sm:mx-0">
+                    <table class="w-full min-w-[700px]">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700">Transaction ID</th>
+                                <th class="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700">Order ID</th>
+                                <th class="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700">Product</th>
+                                <th class="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700">Amount</th>
+                                <th class="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700">Commission</th>
+                                <th class="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700">Net</th>
+                                <th class="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-700">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsList" class="divide-y">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Edit Product Modal -->
-    <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 class="text-xl font-bold mb-4">Edit Product</h3>
+    <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-4 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <h3 class="text-lg sm:text-xl font-bold mb-4">Edit Product</h3>
             <form id="editProductForm" class="space-y-4">
                 <input type="hidden" id="editProductId">
                 <div>
@@ -311,27 +313,27 @@
                     document.getElementById('totalProducts').textContent = products.length;
 
                     container.innerHTML = products.map(product => `
-                        <div class="bg-white p-6 rounded-xl shadow-md">
-                            <div class="flex gap-4">
+                        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+                            <div class="flex flex-col sm:flex-row gap-4">
                                 ${product.image_url ? `
                                     <img src="${API_BASE_URL}${product.image_url}" alt="${product.name}" 
-                                         class="w-32 h-32 object-cover rounded-lg">
+                                         class="w-full sm:w-32 h-48 sm:h-32 object-cover rounded-lg">
                                 ` : ''}
                                 <div class="flex-1">
-                                    <h3 class="text-lg font-bold text-gray-800">${product.name}</h3>
-                                    <p class="text-sm text-gray-600 mb-2">Motif: ${product.cultural_motif}</p>
-                                    ${product.description ? `<p class="text-sm text-gray-500 mb-2">${product.description}</p>` : ''}
-                                    <div class="flex space-x-6 mb-2">
-                                        <span class="text-gray-700">Price: <span class="font-semibold text-green-600">Tk ${product.price.toLocaleString()}</span></span>
-                                        <span class="text-gray-700">Stock: <span class="font-semibold ${product.stock_quantity > 0 ? 'text-blue-600' : 'text-red-600'}">${product.stock_quantity}</span></span>
+                                    <h3 class="text-base sm:text-lg font-bold text-gray-800 truncate">${product.name}</h3>
+                                    <p class="text-xs sm:text-sm text-gray-600 mb-2 truncate">Motif: ${product.cultural_motif}</p>
+                                    ${product.description ? `<p class="text-xs sm:text-sm text-gray-500 mb-2 line-clamp-2">${product.description}</p>` : ''}
+                                    <div class="flex flex-col sm:flex-row sm:space-x-6 mb-2 gap-1 sm:gap-0">
+                                        <span class="text-xs sm:text-sm text-gray-700">Price: <span class="font-semibold text-green-600">Tk ${product.price.toLocaleString()}</span></span>
+                                        <span class="text-xs sm:text-sm text-gray-700">Stock: <span class="font-semibold ${product.stock_quantity > 0 ? 'text-blue-600' : 'text-red-600'}">${product.stock_quantity}</span></span>
                                     </div>
                                     ${product.stock_quantity === 0 ? '<span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">Out of Stock</span>' : ''}
                                 </div>
-                                <div class="flex flex-col space-y-2">
-                                    <button onclick='editProduct(${JSON.stringify(product)})' class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm">
+                                <div class="flex sm:flex-col gap-2">
+                                    <button onclick='editProduct(${JSON.stringify(product)})' class="flex-1 sm:flex-none bg-blue-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-600 text-xs sm:text-sm">
                                         Edit
                                     </button>
-                                    <button onclick="deleteProduct(${product.product_id})" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm">
+                                    <button onclick="deleteProduct(${product.product_id})" class="flex-1 sm:flex-none bg-red-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-600 text-xs sm:text-sm">
                                         Delete
                                     </button>
                                 </div>
@@ -467,27 +469,27 @@
                     }
                     container.innerHTML = orders.map(order => {
                         const shippedInfo = order.courier_service ? `
-                            <div class='mt-3 text-sm text-gray-600'>
+                            <div class='mt-3 text-xs sm:text-sm text-gray-600'>
                                 🚚 Shipped via <span class='font-semibold'>${order.courier_service}</span>
-                                ${order.tracking_number ? ` | Tracking: <span class='font-mono'>${order.tracking_number}</span>` : ''}
-                                ${order.shipped_date ? ` | ${new Date(order.shipped_date).toLocaleDateString()}` : ''}
+                                ${order.tracking_number ? `<br class="sm:hidden"> | Tracking: <span class='font-mono text-xs'>${order.tracking_number}</span>` : ''}
+                                ${order.shipped_date ? `<br class="sm:hidden"> | ${new Date(order.shipped_date).toLocaleDateString()}` : ''}
                             </div>` : '';
                         const dispatchBtn = (!order.courier_service && order.status === 'Pending Shipment') ? `
-                            <button onclick="openShipModal(${order.order_id})" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700">Dispatch via Courier</button>
+                            <button onclick="openShipModal(${order.order_id})" class="mt-4 bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold hover:bg-blue-700">Dispatch via Courier</button>
                         ` : '';
                         return `
-                        <div class="bg-white p-6 rounded-xl shadow-md">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="font-bold text-lg">Order #${order.order_id}</p>
-                                    <p class="text-sm text-gray-600">${new Date(order.order_date).toLocaleDateString()}</p>
-                                    <p class="text-gray-700 mt-2">Product: ${order.product_name}</p>
-                                    <p class="text-gray-700">Quantity: ${order.quantity}</p>
-                                    <p class="text-gray-700">Amount: <span class="font-semibold text-green-600">Tk ${order.amount.toLocaleString()}</span></p>
+                        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+                            <div class="flex flex-col sm:flex-row justify-between items-start gap-3">
+                                <div class="flex-1">
+                                    <p class="font-bold text-base sm:text-lg">Order #${order.order_id}</p>
+                                    <p class="text-xs sm:text-sm text-gray-600">${new Date(order.order_date).toLocaleDateString()}</p>
+                                    <p class="text-sm sm:text-base text-gray-700 mt-2 truncate">Product: ${order.product_name}</p>
+                                    <p class="text-sm sm:text-base text-gray-700">Quantity: ${order.quantity}</p>
+                                    <p class="text-sm sm:text-base text-gray-700">Amount: <span class="font-semibold text-green-600">Tk ${order.amount.toLocaleString()}</span></p>
                                     ${shippedInfo}
                                     ${dispatchBtn}
                                 </div>
-                                <span class="px-3 py-1 rounded text-sm font-semibold ${
+                                <span class="px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-semibold ${
                                     order.status === 'Delivered' ? 'bg-green-100 text-green-700' :
                                     order.status === 'Shipped' ? 'bg-blue-100 text-blue-700' :
                                     'bg-yellow-100 text-yellow-700'
@@ -647,9 +649,9 @@
     </script>
 
     <!-- Ship Order Modal -->
-    <div id="shipModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold mb-4">Dispatch Order</h3>
+    <div id="shipModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h3 class="text-lg sm:text-xl font-bold mb-4">Dispatch Order</h3>
             <form id="shipOrderForm" class="space-y-4">
                 <input type="hidden" id="shipOrderId">
                 <div>
