@@ -162,6 +162,9 @@ app = FastAPI(
 # Mount the uploads directory to serve product images
 os.makedirs("uploads", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+# Mount the images directory to serve site assets (thumbnails, etc.)
+os.makedirs("images", exist_ok=True)
+app.mount("/images", StaticFiles(directory="images"), name="images")
 
 # --- CORS MIDDLEWARE SETUP ---
 app.add_middleware(
