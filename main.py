@@ -214,6 +214,102 @@ async def serve_admin_page():
     return FileResponse("admin.html")
 
 
+# --- DATABASE INITIALIZATION ENDPOINT ---
+
+@app.post("/init-database-secret-endpoint-xyz", tags=["Admin"])
+async def initialize_database(db: Session = Depends(get_db)):
+    """
+    ONE-TIME endpoint to initialize the database with schema and test data.
+    Call this once after deployment to set up tables and admin user.
+    """
+    try:
+        results = []
+
+        # Read and execute schema.sql
+        results.append("1. Creating tables from schema.sql...")
+        schema_path = FilePath("schema.sql")
+        if schema_path.exists():
+            with open(schema_path, 'r', encoding='utf-8') as f:
+                db.execute(text(f.read()))
+            db.commit()
+            results.append("✓ Tables created")
+        else:
+            results.append("✗ schema.sql not found!")
+
+        # Read and execute test_users.sql
+        results.append("2. Adding test users from test_users.sql...")
+        test_users_path = FilePath("test_users.sql")
+        if test_users_path.exists():
+            with open(test_users_path, 'r', encoding='utf-8') as f:
+                db.execute(text(f.read()))
+            db.commit()
+            results.append("✓ Test users added")
+        else:
+            results.append("✗ test_users.sql not found!")
+
+        # Read and execute migrations
+        results.append("3. Running migrations...")
+        migration_files = [
+            "add_product_images.sql",
+            "add_product_description.sql"
+        ]
+
+        for migration in migration_files:
+            migration_path = FilePath(migration)
+            if migration_path.exists():
+                results.append(f"   Running {migration}...")
+                try:
+                    with open(migration_path, 'r', encoding='utf-8') as f:
+                        db.execute(text(f.read()))
+                    db.commit()
+                    results.append(f"   ✓ {migration} applied")
+                except Exception as e:
+                    if "already exists" in str(e):
+                        results.append(f"   ⊘ {migration} already applied")
+                    else:
+                        results.append(f"   ✗ {migration} failed: {e}")
+            else:
+                results.append(f"   ⊘ {migration} not found")
+
+        # Verify tables exist
+        results.append("4. Verifying tables...")
+        tables_result = db.execute(text("""
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public'
+            ORDER BY table_name
+        """))
+        tables = tables_result.fetchall()
+        results.append(f"✓ Found {len(tables)} tables:")
+        for table in tables:
+            results.append(f"  - {table[0]}")
+
+        # Check if admin user exists
+        results.append("5. Checking admin user...")
+        admin_result = db.execute(text('SELECT email FROM "User" WHERE email = :email'),
+                                  {"email": 'admin@marketplace.com'})
+        admin = admin_result.fetchone()
+        if admin:
+            results.append(f"✓ Admin user exists: {admin[0]}")
+        else:
+            results.append("✗ Admin user not found!")
+
+        return {
+            "status": "success",
+            "message": "Database initialization complete",
+            "details": results
+        }
+
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        return {
+            "status": "error",
+            "message": str(e),
+            "traceback": error_details
+        }
+
+
 # --- AUTHENTICATION ENDPOINT ---
 
 @app.post("/token", tags=["Authentication"])
