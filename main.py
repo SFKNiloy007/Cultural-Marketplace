@@ -61,24 +61,33 @@ class DBUser:
 
 def authenticate_user(db: Session, email: str, password: str):
     """Retrieves user from DB and verifies the password hash."""
+    print(f"[AUTH] Authenticating: {email}")
     query = text(
         'SELECT user_id, email, password_hash, COALESCE(is_active, TRUE) FROM "User" WHERE email = :email')
     result = db.execute(query, {'email': email}).fetchone()
+    print(f"[AUTH] Query result: {result is not None}")
 
     if not result:
+        print(f"[AUTH] User not found in database")
         return None
-    
+
     # Check if user is active
     is_active = bool(result[3]) if len(result) > 3 else True
+    print(f"[AUTH] User active: {is_active}")
     if not is_active:
+        print(f"[AUTH] User not active")
         return None
-    
+
     user = DBUser(user_id=result[0], email=result[1], password_hash=result[2])
-    
+
     # Verify password
-    if not verify_password(password, user.password_hash):
+    password_valid = verify_password(password, user.password_hash)
+    print(f"[AUTH] Password valid: {password_valid}")
+    if not password_valid:
+        print(f"[AUTH] Password verification failed")
         return None
-    
+
+    print(f"[AUTH] Authentication successful!")
     return user
 
 
@@ -296,8 +305,17 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db)
 ):
-    user = authenticate_user(db, form_data.username, form_data.password)
-    
+    try:
+        user = authenticate_user(db, form_data.username, form_data.password)
+    except Exception as e:
+        print(f"\nERROR in authenticate_user: {type(e).__name__}: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Authentication error: {str(e)}"
+        )
+
     if not user:
         # Check if user exists but is inactive
         check_user = db.execute(text('SELECT user_id, is_active FROM "User" WHERE email = :email'),
@@ -433,9 +451,9 @@ class ProductDisplay(BaseModel):
     stock_quantity: int
     cultural_motif: str
     artisan_id: int
-    seller_email: str = None
-    image_url: str = None
-    description: str = None
+    seller_email: Optional[str] = None
+    image_url: Optional[str] = None
+    description: Optional[str] = None
 
 
 class ShipOrderRequest(BaseModel):

@@ -20,7 +20,8 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 print(f"DEBUG: Looking for .env at: {env_path}")
 print(f"DEBUG: File exists? {env_path.exists()}")
 if DATABASE_URL:
-    print("DEBUG: DATABASE_URL found successfully.")
+    print(
+        f"DEBUG: DATABASE_URL found: {DATABASE_URL[:30]}...{DATABASE_URL[-20:]}")
 else:
     print("DEBUG: DATABASE_URL is EMPTY or NOT FOUND.")
 
