@@ -61,45 +61,24 @@ class DBUser:
 
 def authenticate_user(db: Session, email: str, password: str):
     """Retrieves user from DB and verifies the password hash."""
-    print(f"authenticate_user called with email={email}")
-    try:
-        print("Executing DB query for user lookup...")
-        query = text(
-            'SELECT user_id, email, password_hash, COALESCE(is_active, TRUE) FROM "User" WHERE email = :email')
-        result = db.execute(query, {'email': email}).fetchone()
-        print(f"Query executed, result: {result}")
+    query = text(
+        'SELECT user_id, email, password_hash, COALESCE(is_active, TRUE) FROM "User" WHERE email = :email')
+    result = db.execute(query, {'email': email}).fetchone()
 
-        if result:
-            print(
-                f"Auth: Found user for email={email}, id={result[0]}, active={result[3]}")
-            # If user is not active, return None (will be handled by login endpoint)
-            is_active = bool(result[3]) if len(result) > 3 else True
-            if not is_active:
-                print(
-                    f"Auth: User {result[0]} is not active (pending verification)")
-                return None
-            user = DBUser(
-                user_id=result[0], email=result[1], password_hash=result[2])
-        else:
-            print(f"Auth: No user found for email={email}")
-            return None
-    except HTTPException:
-        # Re-raise HTTP exceptions without wrapping
-        raise
-    except Exception as e:
-        print(f"Database Query Error during authentication: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            detail="Authentication service error")
-    if not user:
+    if not result:
         return None
-    try:
-        ok = verify_password(password, user.password_hash)
-        print(f"Auth: bcrypt verify result={ok} for user_id={user.user_id}")
-    except Exception as e:
-        print(f"Auth: bcrypt verification error: {e}")
-        ok = False
-    if not ok:
+    
+    # Check if user is active
+    is_active = bool(result[3]) if len(result) > 3 else True
+    if not is_active:
         return None
+    
+    user = DBUser(user_id=result[0], email=result[1], password_hash=result[2])
+    
+    # Verify password
+    if not verify_password(password, user.password_hash):
+        return None
+    
     return user
 
 
@@ -317,28 +296,8 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db)
 ):
-    print(f"\n=== /token called for email: {form_data.username} ===")
-    try:
-        print("Calling authenticate_user...")
-        user = authenticate_user(db, form_data.username, form_data.password)
-        print(f"authenticate_user returned: {user}")
-    except HTTPException as e:
-        print(f"HTTPException raised: {e.status_code} - {e.detail}")
-        raise e
-    except Exception as ex:
-        print(f"\n!!! CRITICAL ERROR in /token !!!")
-        print(f"Error type: {type(ex).__name__}")
-        print(f"Error message: {ex}")
-        import traceback
-        print("Full traceback:")
-        traceback.print_exc()
-        print(f"\n!!! END ERROR !!!\n")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Auth error: {type(ex).__name__} - {str(ex)}",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
+    user = authenticate_user(db, form_data.username, form_data.password)
+    
     if not user:
         # Check if user exists but is inactive
         check_user = db.execute(text('SELECT user_id, is_active FROM "User" WHERE email = :email'),
