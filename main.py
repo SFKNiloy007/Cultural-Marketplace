@@ -213,14 +213,23 @@ async def initialize_database(db: Session = Depends(get_db)):
     try:
         results = []
 
-        # Read and execute schema.sql
+        # Read and execute schema.sql (tolerate already existing tables)
         results.append("1. Creating tables from schema.sql...")
         schema_path = FilePath("schema.sql")
         if schema_path.exists():
-            with open(schema_path, 'r', encoding='utf-8') as f:
-                db.execute(text(f.read()))
-            db.commit()
-            results.append("✓ Tables created")
+            try:
+                with open(schema_path, 'r', encoding='utf-8') as f:
+                    db.execute(text(f.read()))
+                db.commit()
+                results.append("✓ Tables created")
+            except Exception as e:
+                db.rollback()
+                emsg = str(e)
+                if "already exists" in emsg or "DuplicateTable" in emsg:
+                    results.append("⊘ Some tables already existed; continuing")
+                else:
+                    results.append(
+                        f"✗ schema.sql execution error (continuing): {e}")
         else:
             results.append("✗ schema.sql not found!")
 
