@@ -89,10 +89,10 @@
 <body>
     <!-- Background Image Slideshow -->
     <div class="background-slideshow">
-        <img src="images/artisan1.jpg" alt="Artisan weaving" onerror="this.src='https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=1920&q=80'">
-        <img src="images/artisan2.jpg" alt="Traditional crafts" onerror="this.src='https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=1920&q=80'">
-        <img src="images/artisan3.jpg" alt="Handmade pottery" onerror="this.src='https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=1920&q=80'">
-        <img src="images/artisan4.jpg" alt="Artisan products" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1920&q=80'">
+        <img src="/images/artisan1.jpg" alt="Artisan weaving" onerror="this.src='https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=1920&q=80'">
+        <img src="/images/artisan2.jpg" alt="Traditional crafts" onerror="this.src='https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=1920&q=80'">
+        <img src="/images/artisan3.jpg" alt="Handmade pottery" onerror="this.src='https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=1920&q=80'">
+        <img src="/images/artisan4.jpg" alt="Artisan products" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1920&q=80'">
     </div>
     
     <!-- Dark overlay -->
@@ -211,7 +211,9 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://127.0.0.1:8000';
+        const API_BASE_URL = (
+            window.location.host.includes('onrender.com')
+        ) ? `${window.location.origin}` : 'http://127.0.0.1:8000';
         let selectedRole = null;
         let isRegistrationMode = false;
 
