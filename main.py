@@ -61,10 +61,13 @@ class DBUser:
 
 def authenticate_user(db: Session, email: str, password: str):
     """Retrieves user from DB and verifies the password hash."""
+    print(f"authenticate_user called with email={email}")
     try:
+        print("Executing DB query for user lookup...")
         query = text(
             'SELECT user_id, email, password_hash, COALESCE(is_active, TRUE) FROM "User" WHERE email = :email')
         result = db.execute(query, {'email': email}).fetchone()
+        print(f"Query executed, result: {result}")
 
         if result:
             print(
@@ -218,17 +221,25 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db)
 ):
+    print(f"\n=== /token called for email: {form_data.username} ===")
     try:
+        print("Calling authenticate_user...")
         user = authenticate_user(db, form_data.username, form_data.password)
+        print(f"authenticate_user returned: {user}")
     except HTTPException as e:
+        print(f"HTTPException raised: {e.status_code} - {e.detail}")
         raise e
     except Exception as ex:
-        print(f"CRITICAL ERROR in /token: {type(ex).__name__}: {ex}")
+        print(f"\n!!! CRITICAL ERROR in /token !!!")
+        print(f"Error type: {type(ex).__name__}")
+        print(f"Error message: {ex}")
         import traceback
+        print("Full traceback:")
         traceback.print_exc()
+        print(f"\n!!! END ERROR !!!\n")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Authentication service error: {str(ex)}",
+            detail=f"Auth error: {type(ex).__name__} - {str(ex)}",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
