@@ -222,10 +222,13 @@ async def login_for_access_token(
         user = authenticate_user(db, form_data.username, form_data.password)
     except HTTPException as e:
         raise e
-    except Exception:
+    except Exception as ex:
+        print(f"CRITICAL ERROR in /token: {type(ex).__name__}: {ex}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Authentication service error: {str(ex)}",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
