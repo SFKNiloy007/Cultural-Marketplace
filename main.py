@@ -249,7 +249,8 @@ async def initialize_database(db: Session = Depends(get_db)):
         migration_files = [
             "add_orderitem_and_shipment.sql",
             "add_product_images.sql",
-            "add_product_description.sql"
+            "add_product_description.sql",
+            "add_complaint.sql"
         ]
 
         for migration in migration_files:
@@ -1272,8 +1273,18 @@ class ComplaintRequest(BaseModel):
     description: str
 
 
-# In-memory complaint storage (replace with database table in production)
+# In-memory complaint storage (fallback if DB table not present)
 complaints_storage = []
+
+
+def complaint_table_exists(db: Session) -> bool:
+    try:
+        row = db.execute(text(
+            "SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='complaint'"
+        )).fetchone()
+        return bool(row)
+    except Exception:
+        return False
 
 
 @app.post("/buyer/complaint", tags=["Buyer"])
@@ -1295,19 +1306,41 @@ async def submit_complaint(
         raise HTTPException(
             status_code=404, detail="Order not found or does not belong to you")
 
-    # Store complaint
-    complaint_data = {
-        "complaint_id": len(complaints_storage) + 1,
-        "order_id": complaint.order_id,
-        "customer_id": current_user['user_id'],
-        "complaint_type": complaint.complaint_type,
-        "description": complaint.description,
-        "status": "pending",
-        "created_at": datetime.utcnow().isoformat()
-    }
-    complaints_storage.append(complaint_data)
-
-    return {"status": "success", "complaint_id": complaint_data["complaint_id"]}
+    # Prefer DB table if available
+    if complaint_table_exists(db):
+        try:
+            new_id = db.execute(text(
+                """
+                INSERT INTO Complaint (order_id, customer_id, type, description, status)
+                VALUES (:oid, :cid, :type, :desc, 'pending')
+                RETURNING complaint_id
+                """
+            ), {
+                "oid": complaint.order_id,
+                "cid": current_user['user_id'],
+                "type": complaint.complaint_type,
+                "desc": complaint.description
+            }).scalar_one()
+            db.commit()
+            return {"status": "success", "complaint_id": new_id}
+        except DBAPIError as e:
+            db.rollback()
+            print(f"Complaint insert DB error: {e}")
+            raise HTTPException(
+                status_code=500, detail="Failed to submit complaint")
+    else:
+        # Fallback to memory
+        complaint_data = {
+            "complaint_id": len(complaints_storage) + 1,
+            "order_id": complaint.order_id,
+            "customer_id": current_user['user_id'],
+            "complaint_type": complaint.complaint_type,
+            "description": complaint.description,
+            "status": "pending",
+            "created_at": datetime.utcnow().isoformat()
+        }
+        complaints_storage.append(complaint_data)
+        return {"status": "success", "complaint_id": complaint_data["complaint_id"]}
 
 
 @app.get("/buyer/complaints", tags=["Buyer"])
@@ -1318,13 +1351,129 @@ async def get_complaints(
     """Get buyer's complaints."""
     await verify_role(current_user, "buyer")
 
-    # Filter complaints for this customer
-    customer_complaints = [
-        c for c in complaints_storage
-        if c["customer_id"] == current_user['user_id']
-    ]
+    # If DB table exists, query DB; else fallback to memory
+    if complaint_table_exists(db):
+        rows = db.execute(text(
+            """
+            SELECT complaint_id, order_id, customer_id, type, description, status, created_at
+            FROM Complaint
+            WHERE customer_id = :cid
+            ORDER BY created_at DESC
+            """
+        ), {"cid": current_user['user_id']}).fetchall()
+        return [
+            {
+                "complaint_id": r[0],
+                "order_id": r[1],
+                "customer_id": r[2],
+                "complaint_type": r[3],
+                "description": r[4],
+                "status": r[5],
+                "created_at": r[6].isoformat() if r[6] else None
+            } for r in rows
+        ]
+    else:
+        customer_complaints = [
+            c for c in complaints_storage
+            if c["customer_id"] == current_user['user_id']
+        ]
+        return customer_complaints
 
-    return customer_complaints
+
+# ==================== ADMIN: COMPLAINT MANAGEMENT ====================
+
+@app.get("/admin/complaints", tags=["Admin"])
+async def admin_get_complaints(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Admin view of all buyer complaints (in-memory storage)."""
+    await verify_role(current_user, "admin")
+
+    if complaint_table_exists(db):
+        rows = db.execute(text(
+            """
+            SELECT c.complaint_id, c.order_id, u.email as buyer_email, c.type, c.description, c.status, c.created_at
+            FROM Complaint c
+            JOIN "User" u ON c.customer_id = u.user_id
+            ORDER BY c.created_at DESC
+            LIMIT 200
+            """
+        )).fetchall()
+        return [
+            {
+                "complaint_id": r[0],
+                "order_id": r[1],
+                "buyer_email": r[2],
+                "type": r[3],
+                "description": r[4],
+                "status": r[5],
+                "created_at": r[6].isoformat() if r[6] else None
+            } for r in rows
+        ]
+    else:
+        # Enrich memory complaints
+        enriched = []
+        for c in complaints_storage:
+            buyer_email = None
+            try:
+                row = db.execute(text(
+                    'SELECT u.email FROM "User" u WHERE u.user_id = :uid'
+                ), {"uid": c.get("customer_id")}).fetchone()
+                buyer_email = row[0] if row else None
+            except Exception:
+                buyer_email = None
+            enriched.append({
+                "complaint_id": c.get("complaint_id"),
+                "order_id": c.get("order_id"),
+                "buyer_email": buyer_email,
+                "type": c.get("complaint_type"),
+                "description": c.get("description"),
+                "status": c.get("status", "pending"),
+                "created_at": c.get("created_at")
+            })
+        enriched.sort(key=lambda x: x.get("created_at") or "", reverse=True)
+        return enriched
+
+
+class ComplaintStatusUpdate(BaseModel):
+    status: str
+
+
+@app.post("/admin/complaints/{complaint_id}/status", tags=["Admin"])
+async def admin_update_complaint_status(
+    complaint_id: int,
+    payload: ComplaintStatusUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update complaint status (pending, in_progress, resolved)."""
+    await verify_role(current_user, "admin")
+
+    allowed = {"pending", "in_progress", "resolved"}
+    if payload.status not in allowed:
+        raise HTTPException(status_code=400, detail="Invalid status")
+
+    if complaint_table_exists(None):
+        raise HTTPException(status_code=500, detail="DB session required")
+
+    # Try DB first
+    try:
+        if complaint_table_exists(db):
+            updated = db.execute(text(
+                "UPDATE Complaint SET status = :status WHERE complaint_id = :cid"
+            ), {"status": payload.status, "cid": complaint_id}).rowcount
+            db.commit()
+            if updated:
+                return {"status": "ok"}
+    except DBAPIError:
+        db.rollback()
+
+    # Fallback to memory
+    for c in complaints_storage:
+        if c.get("complaint_id") == complaint_id:
+            c["status"] = payload.status
+            return {"status": "ok"}
+    raise HTTPException(status_code=404, detail="Complaint not found")
 
 
 # ==================== NEW ARTISAN ENDPOINTS ====================

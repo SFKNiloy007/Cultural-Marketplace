@@ -65,6 +65,11 @@
                         </button>
                     </li>
                     <li>
+                        <button onclick="showSection('complaints')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-purple-50 hover:text-purple-600 font-medium transition">
+                            📝 Complaints
+                        </button>
+                    </li>
+                    <li>
                         <button onclick="showSection('audit')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-purple-50 hover:text-purple-600 font-medium transition">
                             📊 Audit Logs
                         </button>
@@ -98,6 +103,33 @@
                     <h3 class="text-xl font-bold mb-4 text-gray-800">Manage Active Artisans</h3>
                     <div id="activeArtisansList" class="space-y-4">
                         <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- Complaints Section -->
+                <div id="complaintsSection" class="bg-white p-4 sm:p-6 rounded-xl shadow-md hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                        <h3 class="text-xl font-bold text-gray-800">Buyer Complaints</h3>
+                        <div class="text-sm text-gray-600">View and manage buyer-reported issues</div>
+                    </div>
+                    <div class="overflow-x-auto -mx-4 sm:mx-0">
+                        <table class="w-full min-w-[800px]">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Complaint ID</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Order ID</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Buyer</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Type</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Description</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Status</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Created</th>
+                                    <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="complaintsList" class="divide-y">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -204,6 +236,7 @@
             // Hide all sections
             document.getElementById('verifySection').classList.add('hidden');
             document.getElementById('suspendSection').classList.add('hidden');
+            document.getElementById('complaintsSection').classList.add('hidden');
             document.getElementById('auditSection').classList.add('hidden');
             document.getElementById('payoutSection').classList.add('hidden');
             document.getElementById('financialSection').classList.add('hidden');
@@ -225,6 +258,9 @@
                     case 'suspend':
                         await loadActiveArtisans();
                         break;
+                    case 'complaints':
+                        await loadComplaints();
+                        break;
                     case 'audit':
                         await loadAuditLogs();
                         break;
@@ -237,6 +273,67 @@
                 }
             } catch (error) {
                 console.error('Error loading data:', error);
+            }
+        }
+
+        async function loadComplaints() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/complaints`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const tbody = document.getElementById('complaintsList');
+                if (!response.ok) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-gray-500">No complaint API available</td></tr>';
+                    return;
+                }
+                const complaints = await response.json();
+                if (!complaints || complaints.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-gray-500">No complaints found</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = complaints.map(c => `
+                    <tr>
+                        <td class="px-4 py-3 text-sm">${c.complaint_id}</td>
+                        <td class="px-4 py-3 text-sm">#${c.order_id}</td>
+                        <td class="px-4 py-3 text-sm">${c.buyer_email || '—'}</td>
+                        <td class="px-4 py-3 text-sm">${c.type}</td>
+                        <td class="px-4 py-3 text-sm">${c.description}</td>
+                        <td class="px-4 py-3 text-sm">
+                            <span class="px-2 py-1 text-xs rounded ${c.status === 'resolved' ? 'bg-green-100 text-green-700' : c.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}">
+                                ${c.status}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">${c.created_at ? new Date(c.created_at).toLocaleString() : '—'}</td>
+                        <td class="px-4 py-3 text-sm">
+                            <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs" onclick="markComplaint(${c.complaint_id}, 'in_progress')">Mark In Progress</button>
+                            <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-xs" onclick="markComplaint(${c.complaint_id}, 'resolved')">Resolve</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading complaints:', error);
+                const tbody = document.getElementById('complaintsList');
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-red-500">Failed to load complaints</td></tr>';
+            }
+        }
+
+        async function markComplaint(id, status) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/complaints/${id}/status`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status })
+                });
+                if (response.ok) {
+                    await loadComplaints();
+                } else {
+                    alert('Failed to update complaint');
+                }
+            } catch (e) {
+                alert('Connection error');
             }
         }
 
