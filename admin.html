@@ -6,21 +6,29 @@
     <title>Admin Dashboard - Artisan E-Marketplace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="lang_translations.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; }
     </style>
 </head>
 <body class="min-h-screen">
+    <!-- Language Toggle Button -->
+    <div class="fixed top-4 right-4 z-50 flex items-center gap-3">
+        <span id="langHint" class="text-white bg-black bg-opacity-50 px-3 py-1 rounded-lg text-sm font-medium">বাংলার জন্য এই বাটনে চাপ দিন</span>
+        <button id="langToggle" onclick="toggleLanguage()" class="bg-white hover:bg-gray-100 text-gray-800 font-bold py-2 px-4 rounded-lg shadow-lg transition">
+            বাংলা
+        </button>
+    </div>
     <!-- Header -->
     <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 shadow-lg">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold">Artisan E-Marketplace</h1>
-                <p class="text-sm opacity-90">Administrator Dashboard</p>
+                <h1 id="mainTitle" class="text-2xl font-bold">Artisan E-Marketplace</h1>
+                <p id="dashboardSubtitle" class="text-sm opacity-90">Administrator Dashboard</p>
             </div>
             <div class="flex items-center space-x-4">
                 <span id="adminEmail" class="text-sm"></span>
-                <button onclick="logout()" class="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
+                <button id="logoutBtn" onclick="logout()" class="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
                     Logout
                 </button>
             </div>
@@ -31,19 +39,19 @@
         <!-- Stats Overview -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <div class="bg-white p-6 rounded-xl shadow-md">
-                <p class="text-gray-600 text-sm">Total Artisans</p>
+                <p id="totalArtisansLabel" class="text-gray-600 text-sm">Total Artisans</p>
                 <p class="text-3xl font-bold text-purple-600" id="totalArtisans">-</p>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-md">
-                <p class="text-gray-600 text-sm">Pending Verification</p>
+                <p id="pendingVerificationLabel" class="text-gray-600 text-sm">Pending Verification</p>
                 <p class="text-3xl font-bold text-orange-600" id="pendingArtisans">-</p>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-md">
-                <p class="text-gray-600 text-sm">Total Transactions</p>
+                <p id="totalTransactionsLabel" class="text-gray-600 text-sm">Total Transactions</p>
                 <p class="text-3xl font-bold text-green-600" id="totalTransactions">-</p>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-md">
-                <p class="text-gray-600 text-sm">Active Orders</p>
+                <p id="activeOrdersLabel" class="text-gray-600 text-sm">Active Orders</p>
                 <p class="text-3xl font-bold text-blue-600" id="activeOrders">-</p>
             </div>
         </div>
@@ -91,7 +99,7 @@
             <div class="lg:col-span-2">
                 <!-- Verify Artisans Section -->
                 <div id="verifySection" class="bg-white p-6 rounded-xl shadow-md">
-                    <h3 class="text-xl font-bold mb-4 text-gray-800">Pending User Verification</h3>
+                    <h3 id="verificationTitle" class="text-xl font-bold mb-4 text-gray-800">Pending User Verification</h3>
                     <p class="text-sm text-gray-600 mb-4">Approve or reject pending buyers and artisans</p>
                     <div id="pendingArtisansList" class="space-y-4">
                         <!-- Dynamic content -->
@@ -696,6 +704,41 @@
                 modal.remove();
             }
         }
+
+        // Update page language
+        function updatePageLanguage() {
+            // Update language button and hint
+            document.getElementById('langToggle').textContent = t('langButton');
+            document.getElementById('langHint').textContent = t('langHint');
+            
+            // Update header
+            document.getElementById('mainTitle').textContent = t('marketplace');
+            document.getElementById('dashboardSubtitle').textContent = t('adminDashboard');
+            document.getElementById('logoutBtn').textContent = t('logout');
+            
+            // Update stats labels
+            document.getElementById('totalArtisansLabel').textContent = t('totalArtisans');
+            document.getElementById('pendingVerificationLabel').textContent = t('pendingVerification');
+            document.getElementById('totalTransactionsLabel').textContent = t('totalTransactions');
+            document.getElementById('activeOrdersLabel').textContent = t('activeOrders');
+            
+            // Update sidebar navigation
+            document.getElementById('adminFunctionsTitle').textContent = t('adminFunctions');
+            document.getElementById('verificationBtn').innerHTML = t('verification');
+            document.getElementById('suspendBtn').innerHTML = t('suspendArtisans');
+            document.getElementById('complaintsBtn').innerHTML = t('complaints');
+            document.getElementById('auditBtn').innerHTML = t('auditLogs');
+            document.getElementById('payoutBtn').innerHTML = t('payoutLedger');
+            document.getElementById('financialsBtn').innerHTML = t('sellerFinancials');
+            
+            // Update section titles
+            if (document.getElementById('verificationTitle')) {
+                document.getElementById('verificationTitle').textContent = t('pendingUserVerification');
+            }
+        }
+
+        // Initialize language on page load
+        initLanguage();
 
         // Initial load
         loadStats();

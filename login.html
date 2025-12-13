@@ -73,39 +73,47 @@
     <!-- Dark overlay -->
     <div class="overlay"></div>
     
+    <!-- Language Toggle Button -->
+    <div class="fixed top-4 right-4 z-50 flex items-center gap-3">
+        <span id="langHint" class="text-white bg-black bg-opacity-50 px-3 py-1 rounded-lg text-sm font-medium">বাংলার জন্য এই বাটনে চাপ দিন</span>
+        <button id="langToggle" class="bg-white hover:bg-gray-100 text-gray-800 font-bold py-2 px-4 rounded-lg shadow-lg transition">
+            বাংলা
+        </button>
+    </div>
+    
     <!-- Content -->
     <div class="content-wrapper">
     <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-4xl">
         <!-- Header -->
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">Artisan E-Marketplace</h1>
-            <p class="text-gray-600">Connecting Local Artisans with Global Buyers</p>
+            <h1 id="mainTitle" class="text-4xl font-bold text-gray-800 mb-2">Artisan E-Marketplace</h1>
+            <p id="mainSubtitle" class="text-gray-600">Connecting Local Artisans with Global Buyers</p>
         </div>
 
         <!-- Role Selection Section -->
         <div id="roleSelection" class="space-y-6">
-            <h2 class="text-2xl font-semibold text-center text-gray-700 mb-6">Select Your Role</h2>
+            <h2 id="roleTitle" class="text-2xl font-semibold text-center text-gray-700 mb-6">Select Your Role</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Buyer Card -->
                 <div class="role-card bg-white border-2 border-gray-200 rounded-xl p-6 text-center" data-role="buyer">
                     <div class="text-5xl mb-4">🛍️</div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">Buyer</h3>
-                    <p class="text-gray-600 text-sm">Browse products, place orders, and track deliveries</p>
+                    <h3 id="buyerTitle" class="text-xl font-bold text-gray-800 mb-2">Buyer</h3>
+                    <p id="buyerDesc" class="text-gray-600 text-sm">Browse products, place orders, and track deliveries</p>
                 </div>
 
                 <!-- Artisan Card -->
                 <div class="role-card bg-white border-2 border-gray-200 rounded-xl p-6 text-center" data-role="artisan">
                     <div class="text-5xl mb-4">🎨</div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">Artisan</h3>
-                    <p class="text-gray-600 text-sm">List your products and manage your shop</p>
+                    <h3 id="artisanTitle" class="text-xl font-bold text-gray-800 mb-2">Artisan</h3>
+                    <p id="artisanDesc" class="text-gray-600 text-sm">List your products and manage your shop</p>
                 </div>
 
                 <!-- Admin Card -->
                 <div class="role-card bg-white border-2 border-gray-200 rounded-xl p-6 text-center" data-role="admin">
                     <div class="text-5xl mb-4">⚙️</div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">Admin</h3>
-                    <p class="text-gray-600 text-sm">Login only - manage platform, verify artisans, and monitor transactions</p>
+                    <h3 id="adminTitle" class="text-xl font-bold text-gray-800 mb-2">Admin</h3>
+                    <p id="adminDesc" class="text-gray-600 text-sm">Login only - manage platform, verify artisans, and monitor transactions</p>
                 </div>
             </div>
 
@@ -125,7 +133,7 @@
 
             <form id="authForm" class="space-y-4">
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">Email</label>
+                    <label id="emailLabel" class="block text-gray-700 font-medium mb-2">Email</label>
                     <input 
                         type="email" 
                         id="email" 
@@ -136,7 +144,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">Password</label>
+                    <label id="passwordLabel" class="block text-gray-700 font-medium mb-2">Password</label>
                     <input 
                         type="password" 
                         id="password" 
@@ -149,7 +157,7 @@
                 <!-- Additional fields for registration only -->
                 <div id="registrationFields" class="hidden space-y-4">
                     <div>
-                        <label class="block text-gray-700 font-medium mb-2">National ID (NID)</label>
+                        <label id="nidLabel" class="block text-gray-700 font-medium mb-2">National ID (NID)</label>
                         <input 
                             type="text" 
                             id="nid" 
@@ -158,7 +166,7 @@
                         />
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-2">Phone Number</label>
+                        <label id="phoneLabel" class="block text-gray-700 font-medium mb-2">Phone Number</label>
                         <input 
                             type="tel" 
                             id="phone" 
@@ -178,8 +186,8 @@
                 </button>
             </form>
 
-            <p class="text-center text-gray-600 text-sm mt-4">
-                Don't have an account? <a href="#" id="registerLink" class="text-green-600 hover:text-green-700 font-medium">Register here</a>
+            <p id="registerPrompt" class="text-center text-gray-600 text-sm mt-4">
+                <span id="registerPromptText">Don't have an account?</span> <a href="#" id="registerLink" class="text-green-600 hover:text-green-700 font-medium">Register here</a>
             </p>
         </div>
     </div>
@@ -195,6 +203,139 @@
         );
         let selectedRole = null;
         let isRegistrationMode = false;
+        let currentLang = localStorage.getItem('language') || 'en';
+
+        // Translation object
+        const translations = {
+            en: {
+                langButton: 'বাংলা',
+                langHint: 'বাংলার জন্য এই বাটনে চাপ দিন',
+                mainTitle: 'Artisan E-Marketplace',
+                mainSubtitle: 'Connecting Local Artisans with Global Buyers',
+                roleTitle: 'Select Your Role',
+                buyerTitle: 'Buyer',
+                buyerDesc: 'Browse products, place orders, and track deliveries',
+                artisanTitle: 'Artisan',
+                artisanDesc: 'List your products and manage your shop',
+                adminTitle: 'Admin',
+                adminDesc: 'Login only - manage platform, verify artisans, and monitor transactions',
+                continueBtn: 'Continue to Login',
+                continueBtnRegister: 'Continue to Register',
+                formHeadlineLogin: 'Login as',
+                formHeadlineRegister: 'Register as',
+                backBtn: '← Back',
+                emailLabel: 'Email',
+                emailPlaceholder: 'Enter your email',
+                passwordLabel: 'Password',
+                passwordPlaceholder: 'Enter your password',
+                nidLabel: 'National ID (NID)',
+                nidPlaceholder: 'Enter your National ID',
+                phoneLabel: 'Phone Number',
+                phonePlaceholder: 'Enter your phone number',
+                loginBtn: 'Login',
+                registerBtn: 'Register',
+                registerPromptText: "Don't have an account?",
+                registerLink: 'Register here',
+                registerLinkCreate: 'Create Account'
+            },
+            bn: {
+                langButton: 'English',
+                langHint: 'For English press here',
+                mainTitle: 'কারিগর ই-মার্কেটপ্লেস',
+                mainSubtitle: 'স্থানীয় কারিগরদের সাথে বৈশ্বিক ক্রেতাদের সংযোগ',
+                roleTitle: 'আপনার ভূমিকা নির্বাচন করুন',
+                buyerTitle: 'ক্রেতা',
+                buyerDesc: 'পণ্য ব্রাউজ করুন, অর্ডার দিন এবং ডেলিভারি ট্র্যাক করুন',
+                artisanTitle: 'কারিগর',
+                artisanDesc: 'আপনার পণ্য তালিকাভুক্ত করুন এবং আপনার দোকান পরিচালনা করুন',
+                adminTitle: 'অ্যাডমিন',
+                adminDesc: 'শুধুমাত্র লগইন - প্ল্যাটফর্ম পরিচালনা, কারিগর যাচাই এবং লেনদেন পর্যবেক্ষণ করুন',
+                continueBtn: 'লগইনে চালিয়ে যান',
+                continueBtnRegister: 'রেজিস্ট্রেশনে চালিয়ে যান',
+                formHeadlineLogin: 'লগইন করুন',
+                formHeadlineRegister: 'নিবন্ধন করুন',
+                backBtn: '← পিছনে',
+                emailLabel: 'ইমেইল',
+                emailPlaceholder: 'আপনার ইমেইল লিখুন',
+                passwordLabel: 'পাসওয়ার্ড',
+                passwordPlaceholder: 'আপনার পাসওয়ার্ড লিখুন',
+                nidLabel: 'জাতীয় পরিচয়পত্র (এনআইডি)',
+                nidPlaceholder: 'আপনার জাতীয় পরিচয়পত্র নম্বর লিখুন',
+                phoneLabel: 'ফোন নম্বর',
+                phonePlaceholder: 'আপনার ফোন নম্বর লিখুন',
+                loginBtn: 'লগইন',
+                registerBtn: 'নিবন্ধন করুন',
+                registerPromptText: 'অ্যাকাউন্ট নেই?',
+                registerLink: 'এখানে নিবন্ধন করুন',
+                registerLinkCreate: 'অ্যাকাউন্ট তৈরি করুন'
+            }
+        };
+
+        // Function to update language
+        function updateLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('language', lang);
+            const t = translations[lang];
+
+            // Update language button and hint
+            document.getElementById('langToggle').textContent = t.langButton;
+            document.getElementById('langHint').textContent = t.langHint;
+
+            // Update main header
+            document.getElementById('mainTitle').textContent = t.mainTitle;
+            document.getElementById('mainSubtitle').textContent = t.mainSubtitle;
+
+            // Update role selection
+            document.getElementById('roleTitle').textContent = t.roleTitle;
+            document.getElementById('buyerTitle').textContent = t.buyerTitle;
+            document.getElementById('buyerDesc').textContent = t.buyerDesc;
+            document.getElementById('artisanTitle').textContent = t.artisanTitle;
+            document.getElementById('artisanDesc').textContent = t.artisanDesc;
+            document.getElementById('adminTitle').textContent = t.adminTitle;
+            document.getElementById('adminDesc').textContent = t.adminDesc;
+            
+            // Update continue button
+            if (isRegistrationMode) {
+                document.getElementById('continueBtn').textContent = t.continueBtnRegister;
+            } else {
+                document.getElementById('continueBtn').textContent = t.continueBtn;
+            }
+
+            // Update form labels
+            document.getElementById('emailLabel').textContent = t.emailLabel;
+            document.getElementById('email').placeholder = t.emailPlaceholder;
+            document.getElementById('passwordLabel').textContent = t.passwordLabel;
+            document.getElementById('password').placeholder = t.passwordPlaceholder;
+            document.getElementById('nidLabel').textContent = t.nidLabel;
+            document.getElementById('nid').placeholder = t.nidPlaceholder;
+            document.getElementById('phoneLabel').textContent = t.phoneLabel;
+            document.getElementById('phone').placeholder = t.phonePlaceholder;
+
+            // Update back button
+            document.getElementById('backBtn').textContent = t.backBtn;
+
+            // Update form headline
+            if (isRegistrationMode) {
+                document.getElementById('formHeadline').textContent = t.formHeadlineRegister;
+            } else {
+                document.getElementById('formHeadline').textContent = t.formHeadlineLogin;
+            }
+
+            // Update submit button
+            if (isRegistrationMode) {
+                authForm.querySelector('button[type="submit"]').textContent = t.registerBtn;
+            } else {
+                authForm.querySelector('button[type="submit"]').textContent = t.loginBtn;
+            }
+
+            // Update register prompt
+            document.getElementById('registerPromptText').textContent = t.registerPromptText;
+            if (isRegistrationMode) {
+                document.getElementById('registerLink').textContent = t.registerLinkCreate;
+            } else {
+                document.getElementById('registerLink').textContent = t.registerLink;
+            }
+        }
 
         // Role Selection Logic
         const roleCards = document.querySelectorAll('.role-card');
@@ -206,6 +347,16 @@
         const authForm = document.getElementById('authForm');
         const errorMessage = document.getElementById('errorMessage');
         const adminCard = document.querySelector('[data-role="admin"]');
+        const langToggle = document.getElementById('langToggle');
+
+        // Initialize language on page load
+        updateLanguage(currentLang);
+
+        // Language toggle handler
+        langToggle.addEventListener('click', () => {
+            const newLang = currentLang === 'en' ? 'bn' : 'en';
+            updateLanguage(newLang);
+        });
 
         roleCards.forEach(card => {
             card.addEventListener('click', () => {
@@ -225,23 +376,25 @@
                 // Update form based on mode
                 if (isRegistrationMode) {
                     // In registration mode
-                    document.getElementById('formHeadline').textContent = 'Register as';
+                    const t = translations[currentLang];
+                    document.getElementById('formHeadline').textContent = t.formHeadlineRegister;
                     document.getElementById('registrationFields').classList.remove('hidden');
-                    document.getElementById('registerLink').textContent = 'Create Account';
-                    authForm.querySelector('button[type="submit"]').textContent = 'Register';
+                    document.getElementById('registerPrompt').style.display = 'none';
+                    authForm.querySelector('button[type="submit"]').textContent = t.registerBtn;
                     // Make NID and phone required for registration
                     document.getElementById('nid').required = true;
                     document.getElementById('phone').required = true;
                 } else {
                     // In login mode
-                    document.getElementById('formHeadline').textContent = 'Login as';
+                    const t = translations[currentLang];
+                    document.getElementById('formHeadline').textContent = t.formHeadlineLogin;
                     document.getElementById('registrationFields').classList.add('hidden');
-                    authForm.querySelector('button[type="submit"]').textContent = 'Login';
+                    authForm.querySelector('button[type="submit"]').textContent = t.loginBtn;
                     // Remove required from NID and phone
                     document.getElementById('nid').required = false;
                     document.getElementById('phone').required = false;
-                    // Hide registration link for admin
-                    const registerParagraph = document.getElementById('registerLink').parentElement;
+                    // Hide registration prompt for admin, show for others
+                    const registerParagraph = document.getElementById('registerPrompt');
                     if (selectedRole === 'admin') {
                         registerParagraph.style.display = 'none';
                     } else {
@@ -258,13 +411,14 @@
             // Reset registration mode
             isRegistrationMode = false;
             adminCard.style.display = '';
-            document.getElementById('formHeadline').textContent = 'Login as';
+            const t = translations[currentLang];
+            document.getElementById('formHeadline').textContent = t.formHeadlineLogin;
             document.getElementById('registrationFields').classList.add('hidden');
-            document.getElementById('registerLink').textContent = 'Register here';
-            continueBtn.textContent = 'Continue to Login';
-            authForm.querySelector('button[type="submit"]').textContent = 'Login';
-            // Show registration link again
-            document.getElementById('registerLink').parentElement.style.display = 'block';
+            document.getElementById('registerLink').textContent = t.registerLink;
+            continueBtn.textContent = t.continueBtn;
+            authForm.querySelector('button[type="submit"]').textContent = t.loginBtn;
+            // Show registration prompt again
+            document.getElementById('registerPrompt').style.display = 'block';
             // Clear registration fields
             document.getElementById('nid').value = '';
             document.getElementById('phone').value = '';
@@ -279,8 +433,9 @@
             if (!isRegistrationMode) {
                 isRegistrationMode = true;
                 adminCard.style.display = 'none';
-                document.getElementById('registerLink').textContent = 'Create Account';
-                continueBtn.textContent = 'Continue to Register';
+                const t = translations[currentLang];
+                document.getElementById('registerLink').textContent = t.registerLinkCreate;
+                continueBtn.textContent = t.continueBtnRegister;
                 // Go back to role selection
                 loginForm.classList.add('hidden');
                 roleSelection.classList.remove('hidden');
@@ -340,11 +495,12 @@
                         document.getElementById('phone').value = '';
                         isRegistrationMode = false;
                         adminCard.style.display = '';
-                        document.getElementById('formHeadline').textContent = 'Login as';
+                        const t = translations[currentLang];
+                        document.getElementById('formHeadline').textContent = t.formHeadlineLogin;
                         document.getElementById('registrationFields').classList.add('hidden');
-                        document.getElementById('registerLink').textContent = 'Register here';
-                        continueBtn.textContent = 'Continue to Login';
-                        authForm.querySelector('button[type="submit"]').textContent = 'Login';
+                        document.getElementById('registerLink').textContent = t.registerLink;
+                        continueBtn.textContent = t.continueBtn;
+                        authForm.querySelector('button[type="submit"]').textContent = t.loginBtn;
                         // Go back to role selection
                         loginForm.classList.add('hidden');
                         roleSelection.classList.remove('hidden');

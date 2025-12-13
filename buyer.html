@@ -6,21 +6,29 @@
     <title>Buyer Dashboard - Artisan E-Marketplace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="lang_translations.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; }
     </style>
 </head>
 <body class="min-h-screen">
+    <!-- Language Toggle Button -->
+    <div class="fixed top-4 right-4 z-50 flex items-center gap-3">
+        <span id="langHint" class="text-white bg-black bg-opacity-50 px-3 py-1 rounded-lg text-sm font-medium">বাংলার জন্য এই বাটনে চাপ দিন</span>
+        <button id="langToggle" onclick="toggleLanguage()" class="bg-white hover:bg-gray-100 text-gray-800 font-bold py-2 px-4 rounded-lg shadow-lg transition">
+            বাংলা
+        </button>
+    </div>
     <!-- Header -->
     <div class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-4 shadow-lg">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold">Artisan E-Marketplace</h1>
-                <p class="text-sm opacity-90">Buyer Dashboard</p>
+                <h1 id="mainTitle" class="text-2xl font-bold">Artisan E-Marketplace</h1>
+                <p id="dashboardSubtitle" class="text-sm opacity-90">Buyer Dashboard</p>
             </div>
             <div class="flex items-center space-x-4">
                 <span id="buyerEmail" class="text-sm"></span>
-                <button onclick="logout()" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
+                <button id="logoutBtn" onclick="logout()" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
                     Logout
                 </button>
             </div>
@@ -52,7 +60,7 @@
         <!-- Products Section -->
         <div id="productsSection" class="space-y-6">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold text-gray-800">Available Products</h2>
+                <h2 id="availableProductsTitle" class="text-2xl font-bold text-gray-800">Available Products</h2>
                 <input type="text" id="searchInput" placeholder="Search products..." class="px-4 py-2 border rounded-lg w-64">
             </div>
             
@@ -63,7 +71,7 @@
 
         <!-- Orders Section -->
         <div id="ordersSection" class="hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">My Orders</h2>
+            <h2 id="myOrdersTitle" class="text-2xl font-bold text-gray-800 mb-4">My Orders</h2>
             <div id="ordersList" class="space-y-4">
                 <!-- Dynamic orders will be loaded here -->
             </div>
@@ -71,7 +79,7 @@
 
         <!-- Tracking Section -->
         <div id="trackingSection" class="hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Track Your Order</h2>
+            <h2 id="trackOrderTitle" class="text-2xl font-bold text-gray-800 mb-4">Track Your Order</h2>
             <div class="bg-white p-6 rounded-xl shadow-md mb-6">
                 <div class="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0 mb-6">
                     <div class="flex-1">
@@ -100,7 +108,7 @@
 
         <!-- Payment History Section -->
         <div id="historySection" class="hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Payment & Purchase History</h2>
+            <h2 id="paymentHistoryTitle" class="text-2xl font-bold text-gray-800 mb-4">Payment & Purchase History</h2>
             <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md">
                 <div class="overflow-x-auto">
                 <table class="w-full">
@@ -124,7 +132,7 @@
 
         <!-- Complaints Section -->
         <div id="complaintsSection" class="hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">File a Complaint</h2>
+            <h2 id="fileComplaintTitle" class="text-2xl font-bold text-gray-800 mb-4">File a Complaint</h2>
             <div class="bg-white p-6 rounded-xl shadow-md mb-6">
                 <form id="complaintForm" class="space-y-4">
                     <div>
@@ -152,7 +160,7 @@
                 </form>
             </div>
 
-            <h3 class="text-xl font-bold text-gray-800 mb-4">My Complaints</h3>
+            <h3 id="myComplaintsTitle" class="text-xl font-bold text-gray-800 mb-4">My Complaints</h3>
             <div id="myComplaintsList" class="space-y-4">
                 <!-- Dynamic complaints list -->
             </div>
@@ -657,7 +665,50 @@
             }
         }
 
+        // Update page language
+        function updatePageLanguage() {
+            // Update language button and hint
+            document.getElementById('langToggle').textContent = t('langButton');
+            document.getElementById('langHint').textContent = t('langHint');
+            
+            // Update header
+            document.getElementById('mainTitle').textContent = t('marketplace');
+            document.getElementById('dashboardSubtitle').textContent = t('buyerDashboard');
+            document.getElementById('logoutBtn').textContent = t('logout');
+            
+            // Update navigation tabs
+            document.getElementById('productsTab').innerHTML = t('browseProducts');
+            document.getElementById('ordersTab').innerHTML = t('myOrders');
+            document.getElementById('trackingTab').innerHTML = t('trackOrder');
+            document.getElementById('historyTab').innerHTML = t('paymentHistory');
+            document.getElementById('complaintsTab').innerHTML = t('complaints');
+            
+            // Update section titles
+            if (document.getElementById('availableProductsTitle')) {
+                document.getElementById('availableProductsTitle').textContent = t('availableProducts');
+            }
+            if (document.getElementById('searchInput')) {
+                document.getElementById('searchInput').placeholder = t('searchProducts');
+            }
+            if (document.getElementById('myOrdersTitle')) {
+                document.getElementById('myOrdersTitle').textContent = t('myOrders');
+            }
+            if (document.getElementById('trackOrderTitle')) {
+                document.getElementById('trackOrderTitle').textContent = t('trackYourOrder');
+            }
+            if (document.getElementById('paymentHistoryTitle')) {
+                document.getElementById('paymentHistoryTitle').textContent = t('paymentPurchaseHistory');
+            }
+            if (document.getElementById('fileComplaintTitle')) {
+                document.getElementById('fileComplaintTitle').textContent = t('fileComplaint');
+            }
+            if (document.getElementById('myComplaintsTitle')) {
+                document.getElementById('myComplaintsTitle').textContent = t('myComplaints');
+            }
+        }
+
         // Initial load
+        initLanguage();
         loadProducts();
     </script>
 </body>
