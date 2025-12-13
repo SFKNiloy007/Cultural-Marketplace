@@ -227,6 +227,7 @@ marketplace_commission = sale_amount * 0.15   # 15% to platform
 - [ ] Analytics dashboard
 - [ ] Email notifications
 - [ ] SMS alerts for order updates
+- [ ] Government NID Database Integration
 
 ## 🛠️ Technology Stack
 
