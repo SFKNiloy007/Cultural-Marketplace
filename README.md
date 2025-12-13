@@ -239,11 +239,11 @@ marketplace_commission = sale_amount * 0.15   # 15% to platform
 
 ## 📄 License
 
-Educational project for CSE347 - Database Management Systems
+Educational project for CSE347 - Information System Design and Analysis
 
 ## 👥 Contributors
 
-Developed for Eastern Washington University - CSE347 Project
+Developed for East West University - CSE347 Project
 
 ---
 
