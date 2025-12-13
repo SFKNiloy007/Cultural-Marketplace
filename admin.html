@@ -176,8 +176,12 @@
 
     <script>
         const API_BASE_URL = (
-            window.location.host.includes('onrender.com')
-        ) ? `${window.location.origin}` : 'http://127.0.0.1:8000';
+            window.location.host.includes('onrender.com') 
+                ? window.location.origin 
+                : window.location.host.includes('github.io')
+                    ? 'https://cultural-marketplace.onrender.com'
+                    : 'http://127.0.0.1:8000'
+        );
         let currentSection = 'verify';
 
         // Check authentication
