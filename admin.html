@@ -706,7 +706,7 @@
         }
 
         // Update page language
-        function updatePageLanguage() {
+        window.updatePageLanguage = function() {
             // Update language button and hint
             document.getElementById('langToggle').textContent = t('langButton');
             document.getElementById('langHint').textContent = t('langHint');

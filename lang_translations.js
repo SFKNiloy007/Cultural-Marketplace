@@ -173,8 +173,8 @@ let currentLanguage = localStorage.getItem('language') || 'en';
 function setLanguage(lang) {
     currentLanguage = lang;
     localStorage.setItem('language', lang);
-    if (typeof updatePageLanguage === 'function') {
-        updatePageLanguage();
+    if (typeof window.updatePageLanguage === 'function') {
+        window.updatePageLanguage();
     }
 }
 
@@ -191,7 +191,7 @@ function toggleLanguage() {
 
 // Initialize language on page load
 function initLanguage() {
-    if (typeof updatePageLanguage === 'function') {
-        updatePageLanguage();
+    if (typeof window.updatePageLanguage === 'function') {
+        window.updatePageLanguage();
     }
 }
