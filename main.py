@@ -1444,7 +1444,8 @@ class ComplaintStatusUpdate(BaseModel):
 async def admin_update_complaint_status(
     complaint_id: int,
     payload: ComplaintStatusUpdate,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """Update complaint status (pending, in_progress, resolved)."""
     await verify_role(current_user, "admin")
@@ -1452,9 +1453,6 @@ async def admin_update_complaint_status(
     allowed = {"pending", "in_progress", "resolved"}
     if payload.status not in allowed:
         raise HTTPException(status_code=400, detail="Invalid status")
-
-    if complaint_table_exists(None):
-        raise HTTPException(status_code=500, detail="DB session required")
 
     # Try DB first
     try:
