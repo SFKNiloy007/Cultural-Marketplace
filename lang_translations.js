@@ -173,7 +173,9 @@ let currentLanguage = localStorage.getItem('language') || 'en';
 function setLanguage(lang) {
     currentLanguage = lang;
     localStorage.setItem('language', lang);
-    updatePageLanguage();
+    if (typeof updatePageLanguage === 'function') {
+        updatePageLanguage();
+    }
 }
 
 // Get translation helper
@@ -189,5 +191,7 @@ function toggleLanguage() {
 
 // Initialize language on page load
 function initLanguage() {
-    updatePageLanguage();
+    if (typeof updatePageLanguage === 'function') {
+        updatePageLanguage();
+    }
 }
