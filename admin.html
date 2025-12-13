@@ -6,10 +6,77 @@
     <title>Admin Dashboard - Artisan E-Marketplace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="lang_translations.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; }
     </style>
+    <script>
+        // Inline language translations
+        const TRANSLATIONS = {
+            en: {
+                langButton: 'বাংলা',
+                langHint: 'বাংলার জন্য এই বাটনে চাপ দিন',
+                marketplace: 'Artisan E-Marketplace',
+                logout: 'Logout',
+                adminDashboard: 'Administrator Dashboard',
+                totalArtisans: 'Total Artisans',
+                pendingVerification: 'Pending Verification',
+                totalTransactions: 'Total Transactions',
+                activeOrders: 'Active Orders',
+                adminFunctions: 'Admin Functions',
+                verification: '✓ Verification',
+                suspendArtisans: '🚫 Suspend Artisans',
+                complaints: '📝 Complaints',
+                auditLogs: '📊 Audit Logs',
+                payoutLedger: '💰 Payout Ledger',
+                sellerFinancials: '📈 Seller Financials',
+                pendingUserVerification: 'Pending User Verification',
+            },
+            bn: {
+                langButton: 'English',
+                langHint: 'For English press here',
+                marketplace: 'কারিগর ই-মার্কেটপ্লেস',
+                logout: 'লগআউট',
+                adminDashboard: 'প্রশাসক ড্যাশবোর্ড',
+                totalArtisans: 'মোট কারিগর',
+                pendingVerification: 'যাচাইয়ের অপেক্ষায়',
+                totalTransactions: 'মোট লেনদেন',
+                activeOrders: 'সক্রিয় অর্ডার',
+                adminFunctions: 'অ্যাডমিন ফাংশন',
+                verification: '✓ যাচাইকরণ',
+                suspendArtisans: '🚫 কারিগর স্থগিত করুন',
+                complaints: '📝 অভিযোগ',
+                auditLogs: '📊 অডিট লগ',
+                payoutLedger: '💰 পেমেন্ট লেজার',
+                sellerFinancials: '📈 বিক্রেতার আর্থিক',
+                pendingUserVerification: 'ব্যবহারকারী যাচাইয়ের অপেক্ষায়',
+            }
+        };
+        
+        let currentLanguage = localStorage.getItem('language') || 'en';
+        
+        function t(key) {
+            return TRANSLATIONS[currentLanguage][key] || key;
+        }
+        
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            if (typeof window.updatePageLanguage === 'function') {
+                window.updatePageLanguage();
+            }
+        }
+        
+        function toggleLanguage() {
+            const newLang = currentLanguage === 'en' ? 'bn' : 'en';
+            setLanguage(newLang);
+        }
+        
+        function initLanguage() {
+            if (typeof window.updatePageLanguage === 'function') {
+                window.updatePageLanguage();
+            }
+        }
+    </script>
 </head>
 <body class="min-h-screen">
     <!-- Language Toggle Button -->

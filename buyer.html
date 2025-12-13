@@ -6,10 +6,75 @@
     <title>Buyer Dashboard - Artisan E-Marketplace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="lang_translations.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; }
     </style>
+    <script>
+        // Inline language translations
+        const TRANSLATIONS = {
+            en: {
+                langButton: 'বাংলা',
+                langHint: 'বাংলার জন্য এই বাটনে চাপ দিন',
+                marketplace: 'Artisan E-Marketplace',
+                logout: 'Logout',
+                buyerDashboard: 'Buyer Dashboard',
+                browseProducts: '🛍️ Browse Products',
+                myOrders: '📦 My Orders',
+                trackOrder: '🚚 Track Order',
+                paymentHistory: '💳 Payment History',
+                complaints: '📝 Complaints',
+                availableProducts: 'Available Products',
+                searchProducts: 'Search products...',
+                trackYourOrder: 'Track Your Order',
+                myComplaints: 'My Complaints',
+                paymentPurchaseHistory: 'Payment & Purchase History',
+                fileComplaint: 'File a Complaint',
+            },
+            bn: {
+                langButton: 'English',
+                langHint: 'For English press here',
+                marketplace: 'কারিগর ই-মার্কেটপ্লেস',
+                logout: 'লগআউট',
+                buyerDashboard: 'ক্রেতা ড্যাশবোর্ড',
+                browseProducts: '🛍️ পণ্য ব্রাউজ করুন',
+                myOrders: '📦 আমার অর্ডার',
+                trackOrder: '🚚 অর্ডার ট্র্যাক করুন',
+                paymentHistory: '💳 পেমেন্ট হিস্ট্রি',
+                complaints: '📝 অভিযোগ',
+                availableProducts: 'উপলব্ধ পণ্য',
+                searchProducts: 'পণ্য খুঁজুন...',
+                trackYourOrder: 'আপনার অর্ডার ট্র্যাক করুন',
+                myComplaints: 'আমার অভিযোগসমূহ',
+                paymentPurchaseHistory: 'পেমেন্ট এবং ক্রয় ইতিহাস',
+                fileComplaint: 'অভিযোগ দায়ের করুন',
+            }
+        };
+        
+        let currentLanguage = localStorage.getItem('language') || 'en';
+        
+        function t(key) {
+            return TRANSLATIONS[currentLanguage][key] || key;
+        }
+        
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            if (typeof window.updatePageLanguage === 'function') {
+                window.updatePageLanguage();
+            }
+        }
+        
+        function toggleLanguage() {
+            const newLang = currentLanguage === 'en' ? 'bn' : 'en';
+            setLanguage(newLang);
+        }
+        
+        function initLanguage() {
+            if (typeof window.updatePageLanguage === 'function') {
+                window.updatePageLanguage();
+            }
+        }
+    </script>
 </head>
 <body class="min-h-screen">
     <!-- Language Toggle Button -->

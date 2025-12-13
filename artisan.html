@@ -6,10 +6,77 @@
     <title>Artisan Dashboard - Artisan E-Marketplace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="lang_translations.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; }
     </style>
+    <script>
+        // Inline language translations
+        const TRANSLATIONS = {
+            en: {
+                langButton: 'বাংলা',
+                langHint: 'বাংলার জন্য এই বাটনে চাপ দিন',
+                marketplace: 'Artisan E-Marketplace',
+                logout: 'Logout',
+                artisanDashboard: 'Artisan Dashboard',
+                digitalWallet: 'Digital Wallet',
+                totalProducts: 'Total Products',
+                totalSales: 'Total Sales',
+                awaitingDispatch: 'Awaiting Dispatch',
+                inTransit: 'In Transit',
+                completedOrders: 'Completed Orders',
+                myProducts: '📦 My Products',
+                addProduct: '➕ Add Product',
+                orders: '🛒 Orders',
+                wallet: '💰 Wallet',
+                addProductToMarketplace: 'Add Product to Marketplace',
+                customerOrders: 'Customer Orders',
+            },
+            bn: {
+                langButton: 'English',
+                langHint: 'For English press here',
+                marketplace: 'কারিগর ই-মার্কেটপ্লেস',
+                logout: 'লগআউট',
+                artisanDashboard: 'কারিগর ড্যাশবোর্ড',
+                digitalWallet: 'ডিজিটাল ওয়ালেট',
+                totalProducts: 'মোট পণ্য',
+                totalSales: 'মোট বিক্রয়',
+                awaitingDispatch: 'প্রেরণের অপেক্ষায়',
+                inTransit: 'পথে আছে',
+                completedOrders: 'সম্পন্ন অর্ডার',
+                myProducts: '📦 আমার পণ্য',
+                addProduct: '➕ পণ্য যোগ করুন',
+                orders: '🛒 অর্ডার',
+                wallet: '💰 ওয়ালেট',
+                addProductToMarketplace: 'মার্কেটপ্লেসে পণ্য যোগ করুন',
+                customerOrders: 'গ্রাহক অর্ডার',
+            }
+        };
+        
+        let currentLanguage = localStorage.getItem('language') || 'en';
+        
+        function t(key) {
+            return TRANSLATIONS[currentLanguage][key] || key;
+        }
+        
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            if (typeof window.updatePageLanguage === 'function') {
+                window.updatePageLanguage();
+            }
+        }
+        
+        function toggleLanguage() {
+            const newLang = currentLanguage === 'en' ? 'bn' : 'en';
+            setLanguage(newLang);
+        }
+        
+        function initLanguage() {
+            if (typeof window.updatePageLanguage === 'function') {
+                window.updatePageLanguage();
+            }
+        }
+    </script>
 </head>
 <body class="min-h-screen">
     <!-- Language Toggle Button -->
